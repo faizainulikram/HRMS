@@ -1,0 +1,339 @@
+﻿@using Microsoft.AspNetCore.Authorization
+@inject IAuthorizationService AuthorizationService
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<ApplicationUser> userManager
+@model PaginatedList<BIA.Dashboard.Template.Models.PayrollLedger>
+
+@{
+    ViewData["Title"] = "Payroll Ledger";
+}
+
+<nav class="navbar navbar-horizontal navbar-expand-md navbar-dark bg-default rounded">
+    <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+        <div class="navbar-collapse-header">
+            <div class="row">
+                <div class="col-6 collapse-close">
+                    <button class="navbar-toggler navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+                        <span></span>
+                        <span></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="navbar-nav nav-fill w-100">
+            <ul class="navbar-nav nav-fill w-100">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Posting/Enquiry
+                    </a>
+                    <div class="dropdown-menu nav-fill w-100" aria-labelledby="navbarDropdown">
+                        <a class="dropdown-item nav-fill w-100" asp-action="BankAccountAdvice" asp-controller="Payroll">Bank Account Advice</a>
+                        <a class="dropdown-item nav-fill w-100" asp-action="EarningAdvice" asp-controller="Payroll">Earning Advice</a>
+                        <a class="dropdown-item nav-fill w-100" asp-action="DeductionAdvice" asp-controller="Payroll">Deduction Advice</a>
+                        <a class="dropdown-item nav-fill w-100" asp-action="AdviceHistory" asp-controller="Payroll">Advice History</a>
+                        <a class="dropdown-item nav-fill w-100" asp-action="PayrollPayment" asp-controller="Payroll">Payroll Payment</a>
+                        @*<div class="dropdown-divider"></div>
+        <a class="dropdown-item" href="#">#</a>*@
+                    </div>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Reports
+                    </a>
+                    <div class="dropdown-menu nav-fill w-100" aria-labelledby="navbarDropdown">
+                        <a class="dropdown-item" asp-action="">Payroll Masterlist</a>
+                        <a class="dropdown-item" asp-action="">Payroll Summary</a>
+                        <a class="dropdown-item" asp-action="">Payroll Payment Instruction</a>
+                        <a class="dropdown-item" asp-action="">Earning/Deduction List</a>
+                        <a class="dropdown-item" asp-action="">Individual Ledger</a>
+                        <a class="dropdown-item" asp-action="">Advice Listing Current Month</a>
+                        <a class="dropdown-item" asp-action="">Payroll Reconcilation</a>
+                        @*<div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="#">#</a>*@
+                    </div>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Maintenance
+                    </a>
+                    <div class="dropdown-menu nav-fill w-100" aria-labelledby="navbarDropdown">
+                        <a class="dropdown-item" asp-action="PayrollLedger" asp-controller="Payroll">Payroll Ledger</a>
+                        <a class="dropdown-item" asp-action="PayrollBankBranch" asp-controller="Payroll">Bank/Branch Code</a>
+                        @*<div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="#">#</a>*@
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+<div class="row">
+    <div class="col">
+        <div class="card-header border-0">
+            <h1 class="mb-5 text-center">Payroll Ledger</h1>
+            <div class="form-group" asp-controller="Payroll" asp-action="PayrollLedger" method="get">
+                <form asp-controller="Payroll" asp-action="Index" method="get">
+                    @*<span class="input-group-text">Search Personnels: </span>*@
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="ni ni-zoom-split-in"></i></span>
+                        </div>
+                        <input class="form-control mr-2" type="text" name="SearchString">
+                        <button type="submit" class="btn btn-primary btn-md mr-2" value="Filter">Search</button>
+                        <button type="button" class="btn btn-secondary btn-md mr-2" value="Return to Index" onclick="window.location='@Url.Action("PayrollLedger", "Payroll")'">Return to Index</button>
+                    </div>
+                </form>
+            </div>
+            @*<a asp-area="Identity" asp-page="/Account/Register" class="btn btn-success btn-md" style="width:auto">
+                    Add New User
+                </a>*@
+            <a href="#" onclick="ConfirmAdd()" class="btn btn-success btn-md" style="width:auto">Add New Ledger</a>
+        </div>
+        @*<button class="btn btn-success btn-md" onclick="window.location='@Url.Action("Create", "PersonnelInformations")'">Add</button>*@
+        <div class="table-responsive">
+            <table class="table align-items-center table-flush">
+                <thead class="thead-flush">
+                    <tr>
+                        <th scope="col" width="25%">Ledger Code</th>
+                        <th scope="col" width="50%">Account Name</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr id="row_@item.PayrollLedgerId">
+                            <td>@Html.DisplayFor(modelItem => item.LedgerCode)</td>
+                            <td>@Html.DisplayFor(modelItem => item.Name)</td>
+                            <td>
+                                @*<a asp-action="EditUserDetails" asp-route-id="@item.Id" class="btn btn-sm btn-secondary">Edit Details</a>*@
+                                <a href="#" onclick="ConfirmEdit(@item.PayrollLedgerId)" class="btn btn-sm btn-secondary">Edit</a>
+                                <a href="#" onclick="ConfirmDelete(@item.PayrollLedgerId)" class="btn btn-sm btn-warning">Delete</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <div class="d-flex card-footer flex-row-reverse">
+
+            @{
+                var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+                var nextDisabled = !Model.HasNextPage ? "disabled" : "";
+            }
+            <div class="p-2">
+                <a asp-action="Index"
+                   asp-route-sortOrder="@ViewData["CurrentSort"]"
+                   asp-route-pageNumber="@(Model.PageIndex - 1)"
+                   asp-route-currentFilter="@ViewData["CurrentFilter"]"
+                   class="btn btn-default btn-sm @prevDisabled">
+                    Previous
+                </a>
+                <a asp-action="Index"
+                   asp-route-sortOrder="@ViewData["CurrentSort"]"
+                   asp-route-pageNumber="@(Model.PageIndex + 1)"
+                   asp-route-currentFilter="@ViewData["CurrentFilter"]"
+                   class="btn btn-default btn-sm @nextDisabled">
+                    Next
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="addModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content modal-xl" style="width: 150%">
+            <div class="modal-header">
+                <h3 class="modal-title" id="myModalLabel" style="align-content: center">Add Ledger</h3>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col">
+                        <form asp-action="AddPayrollLedger" id="addPayrollLedger" enctype="multipart/form-data" method="post" role="form">
+                            <div class="row form-group m-1">
+                                <div class="col-md-4">
+                                    <p class="mt-0 mb-0"><label class="control-label">Ledger Code</label></p>
+                                    <input type="text" class="form-control" id="AddLedgerCode" name="addLedgerCode" />
+                                </div>
+                                <div class="col-md-8">
+                                    <p class="mt-0 mb-0"><label class="control-label">Account Name</label></p>
+                                    <input type="text" class="form-control" id="AddAccountName" name="addAccountName" />
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a href="#" class="btn btn-warning" data-dismiss="modal">Cancel</a>
+                <a href="#" class="btn btn-default" onclick="AddLedger()">Confirm</a>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content modal-xl" style="width: 150%">
+            <div class="modal-header">
+                <h3 class="modal-title" id="myModalLabel">Edit Ledger</h3>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col">
+                        <form asp-action="EditPayrollLedger" id="editPayrollLedger" enctype="multipart/form-data" method="post" role="form">
+                            <div class="row form-group m-1">
+                                <div class="col-md-4">
+                                    <p class="mt-0 mb-0"><label class="control-label">Ledger Code</label></p>
+                                    <input type="text" class="form-control" id="EditLedgerCode" name="editLedgerCode" />
+                                </div>
+                                <div class="col-md-8">
+                                    <p class="mt-0 mb-0"><label class="control-label">Account Name</label></p>
+                                    <input type="text" class="form-control" id="EditAccountName" name="editAccountName" />
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a href="#" class="btn btn-warning" data-dismiss="modal">Cancel</a>
+                <a href="#" class="btn btn-default" onclick="EditLedger()">Confirm</a>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="myModalLabel">Delete Ledger</h3>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <h4>Are you sure you want to remove this ledger?</h4>
+
+            </div>
+            <div class="modal-footer">
+                <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
+                <a href="#" class="btn btn-warning" onclick="DeleteLedger()">Confirm</a>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="spinnerModal" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-dialog-centered justify-content-center" role="document">
+        <span class="fa fa-spinner fa-spin fa-3x"></span>
+    </div>
+</div>
+<input type="hidden" id="hiddenLedgerId" />
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+<script type="text/javascript">
+
+        var ConfirmDelete = function (PayrollLedgerId) {
+            $("#hiddenLedgerId").val(PayrollLedgerId);
+            $("#deleteModal").modal('show');
+        }
+
+        var DeleteLedger = function () {
+            var ledgerId = $("#hiddenLedgerId").val();
+            //alert(personnelId)
+            $.ajax({
+                beforeSend: function (request) {
+                    $("#deleteModal").modal("hide");
+                    $("#spinnerModal").modal("show");
+                    request.setRequestHeader("RequestVerificationToken", $("[name='__RequestVerificationToken']").val());
+                },
+                type: 'POST',
+                url: '/Payroll/DeletePayrollLedger',
+                data: {
+                    id: ledgerId
+                },
+                success: function () {
+                    $("#spinnerModal").modal("hide");
+                    $("#row_" + ledgerId).remove();
+                    window.location.reload();
+                }
+            })
+        }
+
+        var ConfirmAdd = function () {
+            //$("#hiddenLedgerId").val(PersonnelId);
+            $("#addModal").modal('show');
+        }
+
+        var ConfirmEdit = function (PayrollLedgerId) {
+            $("#hiddenLedgerId").val(PayrollLedgerId);
+            $.ajax({
+                type: 'GET',
+                url: '/Payroll/GetPayrollLedger/' + PayrollLedgerId,
+                dataType: 'JSON',
+                contentType: "application/json",
+                success: function (payrollLedger) {
+                    $("#editModal").modal('show');
+                    $('#editPayrollLedger input[name="editLedgerCode"]').val(payrollLedger.ledgerCode);
+                    $('#editPayrollLedger input[name="editAccountName"]').val(payrollLedger.name);
+                }
+            })
+        }
+
+        var AddLedger = function () {
+            //var ledgerId = $("#hiddenLedgerId").val();
+            var ledgerCode = $('#AddLedgerCode').val();
+            var accountName = $('#AddAccountName').val();
+            $.ajax({
+                beforeSend: function (request) {
+                    $("#addModal").modal("hide");
+                    $("#spinnerModal").modal("show");
+                    request.setRequestHeader("RequestVerificationToken", $("[name='__RequestVerificationToken']").val());
+                },
+                type: 'POST',
+                url: '/Payroll/AddPayrollLedger',
+                data: {
+                    LedgerCode: ledgerCode,
+                    Name: accountName,
+                },
+                success: function () {
+                    $("#spinnerModal").modal("hide");
+                    window.location.reload();
+                }
+            })
+        }
+
+        var EditLedger = function () {
+            var ledgerId = $("#hiddenLedgerId").val();
+            var ledgerCode = $('#EditLedgerCode').val();
+            var accountName = $('#EditAccountName').val();
+            $.ajax({
+                beforeSend: function (request) {
+                    $("#editModal").modal("hide");
+                    $("#spinnerModal").modal("show");
+                    request.setRequestHeader("RequestVerificationToken", $("[name='__RequestVerificationToken']").val());
+                },
+                type: 'POST',
+                url: '/Payroll/EditPayrollLedger',
+                data: {
+                    PayrollLedgerId: ledgerId,
+                    LedgerCode: ledgerCode,
+                    Name: accountName,
+                },
+                success: function () {
+                    $("#spinnerModal").modal("hide");
+                    window.location.reload();
+                }
+            })
+    }
+
+</script>
+}

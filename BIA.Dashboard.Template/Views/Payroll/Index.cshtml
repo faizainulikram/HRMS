@@ -1,0 +1,83 @@
+﻿@using Microsoft.AspNetCore.Authorization
+@inject IAuthorizationService AuthorizationService
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<ApplicationUser> userManager
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+
+<nav class="navbar navbar-horizontal navbar-expand-md navbar-dark bg-default rounded">
+    <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+        <div class="navbar-collapse-header">
+            <div class="row">
+                <div class="col-6 collapse-close">
+                    <button class="navbar-toggler navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+                        <span></span>
+                        <span></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="navbar-nav nav-fill w-100">
+            <ul class="navbar-nav nav-fill w-100">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Posting/Enquiry
+                    </a>
+                    <div class="dropdown-menu nav-fill w-100" aria-labelledby="navbarDropdown">
+                        <a class="dropdown-item nav-fill w-100" asp-action="BankAccountAdvice" asp-controller="Payroll">Bank Account Advice</a>
+                        <a class="dropdown-item nav-fill w-100" asp-action="EarningAdvice" asp-controller="Payroll">Earning Advice</a>
+                        <a class="dropdown-item nav-fill w-100" asp-action="DeductionAdvice" asp-controller="Payroll">Deduction Advice</a>
+                        <a class="dropdown-item nav-fill w-100" asp-action="AdviceHistory" asp-controller="Payroll">Advice History</a>
+                        <a class="dropdown-item nav-fill w-100" asp-action="PayrollPayment" asp-controller="Payroll">Payroll Payment</a>
+                        @*<div class="dropdown-divider"></div>
+        <a class="dropdown-item" href="#">#</a>*@
+                    </div>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Reports
+                    </a>
+                    <div class="dropdown-menu nav-fill w-100" aria-labelledby="navbarDropdown">
+                        <a class="dropdown-item" asp-action="">Payroll Masterlist</a>
+                        <a class="dropdown-item" asp-action="">Payroll Summary</a>
+                        <a class="dropdown-item" asp-action="">Payroll Payment Instruction</a>
+                        <a class="dropdown-item" asp-action="">Earning/Deduction List</a>
+                        <a class="dropdown-item" asp-action="">Individual Ledger</a>
+                        <a class="dropdown-item" asp-action="">Advice Listing Current Month</a>
+                        <a class="dropdown-item" asp-action="">Payroll Reconcilation</a>
+                        @*<div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="#">#</a>*@
+                    </div>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Maintenance
+                    </a>
+                    <div class="dropdown-menu nav-fill w-100" aria-labelledby="navbarDropdown">
+                        <a class="dropdown-item" asp-action="PayrollLedger" asp-controller="Payroll">Payroll Ledger</a>
+                        <a class="dropdown-item" asp-action="PayrollBankBranch" asp-controller="Payroll">Bank/Branch Code</a>
+                        @*<div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="#">#</a>*@
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+<div class="row">
+    <div class="col">
+        <div class="card-header border-0">
+            <div class="row">
+                <div class="col">
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

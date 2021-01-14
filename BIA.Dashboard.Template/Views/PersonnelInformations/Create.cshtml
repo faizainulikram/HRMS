@@ -1,0 +1,602 @@
+﻿@using Microsoft.AspNetCore.Authorization
+@inject IAuthorizationService AuthorizationService
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<ApplicationUser> userManager
+@model BIA.Dashboard.Template.Models.PersonnelInformation
+
+@{
+    ViewData["Title"] = "Create";
+}
+@Html.AntiForgeryToken()
+<script src="~/lib/jquery/dist/jquery.js"></script>
+<script src="~/lib/jqueryui/jquery-ui.js"></script>
+<nav class="navbar navbar-horizontal navbar-expand-md navbar-dark bg-default rounded">
+    <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+        <div class="navbar-collapse-header">
+            <div class="row">
+                <div class="col-6 collapse-close">
+                    <button class="navbar-toggler navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+                        <span></span>
+                        <span></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="navbar-nav nav-fill w-100">
+            <a class="nav-item nav-link" href="@Url.Action("Index")">Directory</a>
+            <a class="nav-item nav-link" asp-action="Profile" asp-route-id=@userManager.GetUserId(User)>Personnel Information</a>
+            @if ((await AuthorizationService.AuthorizeAsync(User, "PersonnelInformationHR")).Succeeded)
+            {
+                <a class="nav-item nav-link" asp-action="Verify">HR Verification</a>
+                <a class="nav-item nav-link" asp-action="AuditLog">Audit Log</a>
+            }
+        </div>
+    </div>
+</nav>
+<div class="row">
+    <div class="col">
+        <div class="card-header border-0">
+            <h1 class="mb-5 text-center">Add New Personnel Information</h1>
+        </div>
+        <div class="card border-0">
+            <form asp-action="Create" id="formPersonnelInformation" enctype="multipart/form-data" method="post" role="form">
+                @if ((await AuthorizationService.AuthorizeAsync(User, "PersonnelInformationHR")).Succeeded)
+                {
+                    <h2 class="mb-0 ml-3">Link to a User</h2>
+                    <hr class="mt-0 mb-3">
+                    <div class="row form-group m-1">
+                        <div class="col-md-6">
+                            <select asp-for="ApplicationUserId" id="ApplicationUserId" name="applicationUserId" class="form-control" asp-items="ViewBag.ApplicationUserId">
+                                <option value="">Select User</option>
+                            </select>
+                        </div>
+                    </div>
+                }
+                <h2 class="mb-0 ml-3">Personal Profile</h2>
+                <hr class="mt-0 mb-3">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="row form-group m-1">
+                    <div class="col-md-8">
+                    </div>
+                    <div class="col-md-4">
+                        <p class="mt-0 mb-0"><label asp-for="ProfileImage" class="control-label"></label></p>
+                        <img id="DisplayImage" height="130" width="130" asp-append-version="true" />
+                        <input asp-for="ProfileImage" class="form-control" id="ProfileImage" name="ProfileImage" accept="image/*" onchange="document.getElementById('DisplayImage').src = window.URL.createObjectURL(this.files[0])" />
+                        <span asp-validation-for="ProfileImage" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="row form-group m-1">
+                    <div class="col-md-6">
+                        <p class="mt-0 mb-0"><label asp-for="PersonnelNumber" class="control-label"></label></p>
+                        <input asp-for="PersonnelNumber" class="form-control" id="PersonnelNumber" name="personnelNumber" />
+                        <span asp-validation-for="PersonnelNumber" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="row form-group m-1">
+                    <div class="col-md-6">
+                        <p class="mt-0 mb-0"><label asp-for="Prefix" class="control-label"></label></p>
+                        <input asp-for="Prefix" class="form-control" id="Prefix" name="prefix" />
+                        <span asp-validation-for="Prefix" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <p class="mt-0 mb-0"><label asp-for="Name" class="control-label"></label></p>
+                        <input asp-for="Name" class="form-control" name="name" />
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="row form-group m-1">
+                    <div class="col-md-3">
+                        <p class="mt-0 mb-0"><label asp-for="IdentityCardNumber" class="control-label"></label></p>
+                        <input asp-for="IdentityCardNumber" class="form-control" name="identityCardNumber" />
+                        <span asp-validation-for="IdentityCardNumber" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-3">
+                        <p class="mt-0 mb-0"><label asp-for="IdentityCardColor" class="control-label"></label></p>
+                        <select asp-for="IdentityCardColor" class="form-control" name="identityCardColor">
+                            <option value="">Please Select One</option>
+                            <option value="Yellow">Yellow</option>
+                            <option value="Red">Red</option>
+                        </select>
+                        <span asp-validation-for="IdentityCardColor" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-3">
+                        <p class="mt-0 mb-0"><label asp-for="BirthDate" class="control-label"></label></p>
+                        <input asp-for="BirthDate" class="form-control" name="birthDate" asp-format="{0:dd/MM/yyyy}" />
+                        <span asp-validation-for="BirthDate" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-3">
+                        <p class="mt-0 mb-0"><label asp-for="Race" class="control-label"></label></p>
+                        <input asp-for="Race" class="form-control" name="race" />
+                        <span asp-validation-for="Race" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="row form-group m-1">
+                    <div class="col-md-3">
+                        <p class="mt-0 mb-0"><label asp-for="Religion" class="control-label"></label></p>
+                        <input asp-for="Religion" class="form-control" name="religion" />
+                        <span asp-validation-for="Religion" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-3">
+                        <p class="mt-0 mb-0"><label asp-for="MaritalStatus" class="control-label"></label></p>
+                        <select asp-for="MaritalStatus" class="form-control" name="maritalStatus">
+                            <option value="">Please Select One</option>
+                            <option value="Single">Single</option>
+                            <option value="Married">Married</option>
+                            <option value="Separated">Separated</option>
+                        </select>
+                        <span asp-validation-for="MaritalStatus" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-3">
+                        <p class="mt-0 mb-0"><label asp-for="HomeNumber" class="control-label"></label></p>
+                        <input asp-for="HomeNumber" class="form-control" name="homeNumber" />
+                        <span asp-validation-for="HomeNumber" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-3">
+                        <p class="mt-0 mb-0"><label asp-for="MobileNumber" class="control-label"></label></p>
+                        <input asp-for="MobileNumber" class="form-control" name="mobileNumber" />
+                        <span asp-validation-for="MobileNumber" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="row form-group m-1">
+                    <div class="col-md-12">
+                        <p class="mt-0 mb-0"><label asp-for="Address" class="control-label"></label></p>
+                        <input asp-for="Address" class="form-control" name="address" />
+                        <span asp-validation-for="Address" class="text-danger"></span>
+                    </div>
+                </div>
+                <h2 class="mb-0 ml-3 mt-3">Career Profile</h2>
+                <hr class="mt-0 mb-3">
+                <div class="row form-group m-1">
+                    <div class="col-md-3">
+                        <p class="mt-0 mb-0"><label asp-for="EmploymentStatus" class="control-label"></label></p>
+                        <select asp-for="EmploymentStatus" class="form-control" name="employmentStatus">
+                            <option value="">Please Select One</option>
+                            <option value="Daily Paid">Daily Paid</option>
+                            <option value="Contract">Contract</option>
+                            <option value="Apprentice">Apprentice</option>
+                            <option value="Probation">Probation</option>
+                            <option value="Confirmed">Confirmed</option>
+                            <option value="Inactive">Inactive</option>
+                        </select>
+                        <span asp-validation-for="EmploymentStatus" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-3">
+                        <p class="mt-0 mb-0"><label asp-for="ReportingDate" class="control-label"></label></p>
+                        <input asp-for="ReportingDate" class="form-control" name="reportingDate" />
+                        <span asp-validation-for="ReportingDate" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-3">
+                        <p class="mt-0 mb-0"><label asp-for="ConfirmedDate" class="control-label"></label></p>
+                        <input asp-for="ConfirmedDate" class="form-control" name="confirmedDate" />
+                        <span asp-validation-for="ConfirmedDate" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-3">
+                        <p class="mt-0 mb-0"><label asp-for="ServiceDuration" class="control-label"></label></p>
+                        <input asp-for="ServiceDuration" class="form-control" name="serviceDuration" disabled="disabled" style="background: white"/>
+                        <span asp-validation-for="ServiceDuration" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="row form-group m-1">
+                    <div class="col-md-3">
+                        <p class="mt-0 mb-0"><label asp-for="PositionReportingDate" class="control-label"></label></p>
+                        <input asp-for="PositionReportingDate" class="form-control" name="positionReportingDate" />
+                        <span asp-validation-for="PositionReportingDate" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-3">
+                        <p class="mt-0 mb-0"><label asp-for="DepartmentReportingDate" class="control-label"></label></p>
+                        <input asp-for="DepartmentReportingDate" class="form-control" name="departmentReportingDate" />
+                        <span asp-validation-for="DepartmentReportingDate" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-3">
+                        <p class="mt-0 mb-0"><label asp-for="MandatoryRetirementDate" class="control-label"></label></p>
+                        <input asp-for="MandatoryRetirementDate" class="form-control" name="mandatoryRetirementDate" />
+                        <span asp-validation-for="MandatoryRetirementDate" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-3">
+                        <p class="mt-0 mb-0"><label asp-for="CurrentPosition" class="control-label"></label></p>
+                        <select asp-for="CurrentPosition" class="form-control" name="currentPosition">
+                            <option value="">Please Select One</option>
+                            <option value="Managing Director">Managing Director</option>
+                            <option value="Senior Assistant Managing Director">Senior Assistant Managing Director</option>
+                            <option value="Assistant Managing Director">Assistant Managing Director</option>
+                            <option value="Executive Manager">Executive Manager</option>
+                            <option value="Senior Manager">Senior Manager</option>
+                            <option value="Manager">Manager</option>
+                            <option value="Senior Associate">Senior Associate</option>
+                            <option value="Associate">Associate</option>
+                            <option value="Assistant Officer">Assistant Officer</option>
+                            <option value="Senior Administrator">Senior Administrator</option>
+                            <option value="Administrator">Administrator</option>
+                            <option value="Driver">Driver</option>
+                        </select>
+                        <span asp-validation-for="CurrentPosition" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="row form-group m-1">
+                    <div class="col-md-3">
+                        <p class="mt-0 mb-0"><label asp-for="GlobalGrade" class="control-label"></label></p>
+                        <select asp-for="GlobalGrade" class="form-control" name="globalGrade">
+                            <option value="">Please Select One</option>
+                            <option value="A">A</option>
+                            <option value="B">B</option>
+                            <option value="C">C</option>
+                            <option value="D">D</option>
+                            <option value="E">E</option>
+                            <option value="F">F</option>
+                            <option value="G">G</option>
+                            <option value="H">H</option>
+                            <option value="I">I</option>
+                            <option value="J">J</option>
+                            <option value="K">K</option>
+                            <option value="Daily Paid">Daily Paid</option>
+                        </select>
+                        <span asp-validation-for="GlobalGrade" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-3">
+                        <p class="mt-0 mb-0"><label asp-for="Group" class="control-label"></label></p>
+                        <select asp-for="Group" class="form-control" name="group">
+                            <option value="">Please Select One</option>
+                            <option value="Professional">Professional</option>
+                            <option value="Support">Support</option>
+                        </select>
+                        <span asp-validation-for="Group" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-3">
+                        <p class="mt-0 mb-0"><label asp-for="Division" class="control-label"></label></p>
+                        <select asp-for="Division" class="form-control" name="division">
+                            <option value="">Please Select One</option>
+                            <option value="Accounting & Finance Operations Department">Accounting & Finance Operations Department</option>
+                            <option value="Alternative Assets Division">Alternative Assets Division</option>
+                            <option value="Back Office Division">Back Office Division</option>
+                            <option value="Business & Operations Compliance Section">Business & Operations Compliance Section</option>
+                            <option value="Enterprise Solutions Section">Enterprise Solutions Section</option>
+                            <option value="Internal Audit Division">Internal Audit Division</option>
+                            <option value="Investment Group">Investment Group</option>
+                            <option value="Legal & Corporate Affairs Department">Legal & Corporate Affairs Department</option>
+                            <option value="Listed Assets Division">Listed Assets Division</option>
+                            <option value="Management Office">Management Office</option>
+                            <option value="Middle Office Division">Middle Office Division</option>
+                            <option value="Operations Division">Operations Division</option>
+                            <option value="People Management Department">People Management Department</option>
+                            <option value="Project Management Unit">Project Management Unit</option>
+                            <option value="Real Estate Division">Real Estate Division</option>
+                            <option value="Secondment">Secondment</option>
+                            <option value="Support Group">Support Group</option>
+                        </select>
+                        <span asp-validation-for="Division" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-3">
+                        <p class="mt-0 mb-0"><label asp-for="ExtensionNumber" class="control-label"></label></p>
+                        <input asp-for="ExtensionNumber" class="form-control" name="departmentReportingDate" />
+                        <span asp-validation-for="ExtensionNumber" class="text-danger"></span>
+                    </div>
+                </div>
+                <h2 class="mb-0 ml-3 mt-3">Education Detail</h2>
+                <hr class="mt-0 mb-3">
+                <div class="row form-group m-1">
+                    <div class="table-responsive">
+                        <table id="tableeducation" class="table table-hover mb-0" style="width: 1000px;">
+                            <thead>
+                                <tr>
+                                    <th width="30%">Education</th>
+                                    <th width="30%">Institution</th>
+                                    <th width="15%">Year</th>
+                                    <th width="5%"></th>
+                                </tr>
+                            </thead>
+                            <tbody id="newEducation">
+                                <tr class="data-education-detail">
+                                    <td><input type="text" name="education-education" class="form-control education-education-01"></td>
+                                    <td><input type="text" name="education-institution" class="form-control education-institution-01"></td>
+                                    <td><input type="text" name="education-year" class="form-control education-year-01"></td>
+                                    <td><a id="btnDelete" class="deleteContact btn btn btn-danger btn-xs"><i class="fa fa-trash"></i></a></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <p class="btn btn-sm btn-outline-info mt-3 ml-3 addEducationRow" id="addEducationRow">+ Row</p>
+                    </div>
+                </div>
+                <h2 class="mb-0 ml-3 mt-3">Professional Qualification</h2>
+                <hr class="mt-0 mb-3">
+                <div class="row form-group m-1">
+                    <div class="table-responsive">
+                        <table id="tableprofessional" class="table table-hover mb-0" style="width: 1000px;">
+                            <thead>
+                                <tr>
+                                    <th width="45%">Professional Qualification</th>
+                                    <th width="45%">Status</th>
+                                    <th width="5%"></th>
+                                </tr>
+                            </thead>
+                            <tbody id="newProfessional">
+                                <tr class="data-professional-qualification">
+                                    <td><input type="text" name="professional-professional" class="form-control professional-professional-01"></td>
+                                    <td><input type="text" name="professional-status" class="form-control professional-status-01"></td>
+                                    <td><a id="btnDelete" class="deleteContact btn btn btn-danger btn-xs"><i class="fa fa-trash"></i></a></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <p class="btn btn-sm btn-outline-info mt-3 ml-3 addProfessionalRow" id="addProfessionalRow">+ Row</p>
+                    </div>
+                </div>
+                <h2 class="mb-0 ml-3 mt-3">Family Information</h2>
+                <hr class="mt-0 mb-3">
+                <div class="row form-group m-1">
+                    <div class="table-responsive">
+                        <table id="tablefamily" class="table table-hover mb-0" style="width: 1500px;">
+                            <thead>
+                                <tr>
+                                    <th width="25%">Name</th>
+                                    <th width="7%">Identity Card No</th>
+                                    <th width="13%">Date of Birth</th>
+                                    <th width="15%">Position</th>
+                                    <th width="15%">Employer</th>
+                                    <th width="10%">Relationship</th>
+                                    <th width="5%"></th>
+                                </tr>
+                            </thead>
+                            <tbody id="newFamily">
+                                <tr class="data-family-information">
+                                    <td><input type="text" name="family-name" class="form-control family-name-01"></td>
+                                    <td><input type="text" name="family-identityno" class="form-control family-identityno-01"></td>
+                                    <td><input type="date" name="family-birthdate" class="form-control family-birthdate-01"></td>
+                                    <td><input type="text" name="family-position" class="form-control family-position-01"></td>
+                                    <td><input type="text" name="family-employer" class="form-control family-employer-01"></td>
+                                    <td><input type="text" name="family-relationship" class="form-control family-relationship-01"></td>
+                                    <td><a id="btnDelete" class="deleteContact btn btn btn-danger btn-xs"><i class="fa fa-trash"></i></a></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <p class="btn btn-sm btn-outline-info mt-3 ml-3 addRelationshipRow" id="addRelationshipRow">+ Row</p>
+                    </div>
+                </div>
+                @*<h2 class="mb-0 ml-3 mt-3">Emergency Contact</h2>
+                <hr class="mt-0 mb-3">
+                <div class="row form-group m-1">
+                    <div class="table-responsive">
+                        <table id="tableemergency" class="table table-hover mb-0" style="width: 1000px;">
+                            <thead>
+                                <tr>
+                                    <th width="25%">Name</th>
+                                    <th width="25%">Relationship</th>
+                                    <th width="25%">Contact Number</th>
+                                    <th width="5%"></th>
+                                </tr>
+                            </thead>
+                            <tbody id="newEmergency">
+                                <tr class="data-emergency-contact">
+                                    <td><input type="text" name="contact-name" class="form-control contact-name-01"></td>
+                                    <td><input type="text" name="contact-relationship" class="form-control contact-relationship-01"></td>
+                                    <td><input type="text" name="contact-number" class="form-control contact-number-01"></td>
+                                    <td><a id="btnDelete" class="deleteContact btn btn btn-danger btn-xs"><i class="fa fa-trash"></i></a></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <p class="btn btn-sm btn-outline-info mt-3 ml-3 addEmergencyRow" id="addEmergencyRow">+ Row</p>
+                    </div>
+                </div>*@
+                <h2 class="mb-0 ml-3 mt-3">Documents</h2>
+                <hr class="mt-0 mb-3">
+                <div class="row form-group m-1">
+                    <div class="col-md-3">
+                        <p class="mt-0 mb-0"><label asp-for="FileAttachments" class="control-label"></label></p>
+                        <input asp-for="FileAttachments" class="form-control" id="FileAttachments" name="FileAttachments" />
+                        <span asp-validation-for="FileAttachments" class="text-danger"></span>
+                    </div>
+                </div>
+                <hr class="mt-0 mb-3">
+                <div class="row form-group m-1">
+                    <div class="col-12 text-center">
+                        <div class="m-auto">
+                            <input id="btnSave" type="submit" name="submit" class="btn btn-primary" />
+                            @*<input id="btnSave" type="submit" name="submit" class="btn btn-primary" />*@
+                            <a asp-action="Index" class="btn btn-outline-dark">Cancel</a>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="spinnerModal" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-dialog-centered justify-content-center" role="document">
+        <span class="fa fa-spinner fa-spin fa-3x"></span>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script type="text/javascript">
+        function objectifyForm(formArray) {//serialize data function
+            var returnArray = {};
+            for (var i = 0; i < formArray.length; i++) {
+                returnArray[formArray[i]['name']] = formArray[i]['value'];
+            }
+            return returnArray;
+        }
+
+        document.getElementById("ConfirmedDate").onchange = function () { ServiceDuration() };
+
+        function ServiceDuration() {
+            Start = document.getElementById("ConfirmedDate").value;
+            var StartDateArray = Start.split("/");
+            var NewStartDate = new Date(StartDateArray[1] + '/' + StartDateArray[2] + '/' + StartDateArray[0]);
+
+            End = new Date();
+
+            var TimeDiff = Math.abs(End.getTime() - NewStartDate.getTime());
+
+            var DiffDays = Math.ceil(TimeDiff / (1000 * 3600 * 24));
+
+            var years = Math.floor(DiffDays / 365);
+            var months = Math.floor(DiffDays % 365 / 30);
+            var days = Math.floor(DiffDays % 365 % 30);
+
+            var yearsDisplay = years > 0 ? years + (years == 1 ? " year, " : " years, ") : "";
+            var monthsDisplay = months > 0 ? months + (months == 1 ? " month, " : " months, ") : "";
+            var daysDisplay = days > 0 ? days + (days == 1 ? " day" : " days") : "";
+            return yearsDisplay + monthsDisplay + daysDisplay;
+        }
+
+        setInterval(function () { document.getElementById("ServiceDuration").value = ServiceDuration(); }, 1000);s
+
+        //' + rowCount + '
+        $(document).on("click", ".addEducationRow", function () {
+            var rowCount = $('.data-education-detail').length + 1;
+            var educationdetaildiv = '<tr class="data-education-detail" id="data-education-detail">' +
+                '<td><input type="text" name="education-education" class="form-control education-education-01"/></td>' +
+                '<td><input type="text" name="education-institution" class="form-control education-institution-01"/></td>' +
+                '<td><input type="text" name="education-year" class="form-control education-year-01"/></td>' +
+                '<td><a id="btnDelete" class="deleteContact btn btn btn-danger btn-xs"><i class="fa fa-trash"></i></a></td>' +
+                '</tr>';
+            $('#tableeducation').append(educationdetaildiv);
+        });
+        $(document).on("click", ".addProfessionalRow", function () {
+            var rowCount = $('.data-professional-qualification').length + 1;
+            var professionalqualificationdiv = '<tr class="data-professional-qualification" id="data-professional-qualification">' +
+                '<td><input type="text" name="professional-professional" class="form-control professional-professional-01"/></td>' +
+                '<td><input type="text" name="professional-status" class="form-control professional-status-01"/></td>' +
+                '<td><a id="btnDelete" class="deleteContact btn btn btn-danger btn-xs"><i class="fa fa-trash"></i></a></td>' +
+                '</tr>';
+            $('#tableprofessional').append(professionalqualificationdiv);
+        });
+        $(document).on("click", ".addRelationshipRow", function () {
+            var rowCount = $('.data-familyinformation').length + 1;
+            var familyinformationdiv = '<tr class="data-family-information">' +
+                '<td><input type="text" name="family-name" class="form-control family-name-01"/></td>' +
+                '<td><input type="text" name="family-identityno" class="form-control family-identityno-01"/></td>' +
+                '<td><input type="date" name="family-birthdate" class="form-control family-birthdate-01 datepicker"/></td>' +
+                '<td><input type="text" name="family-position" class="form-control family-position-01"/></td>' +
+                '<td><input type="text" name="family-employer" class="form-control family-employer-01"/></td>' +
+                '<td><input type="text" name="family-relationship" class="form-control family-relationship-01"/></td>' +
+                '<td><a id="btnDelete" class="deleteContact btn btn btn-danger btn-xs"><i class="fa fa-trash"></i></a></td>' +
+                '</tr>';
+            $('#tablefamily').append(familyinformationdiv);
+        });
+        $(document).on("click", ".addEmergencyRow", function () {
+            var rowCount = $('.data-emergency-contact').length + 1;
+            var emergencycontactdiv = '<tr class="data-emergency-contact" id="data-emergency-contact">' +
+                '<td><input type="text" name="contact-name" class="form-control contact-name-01"/></td>' +
+                '<td><input type="text" name="contact-relationship" class="form-control contact-relationship-01"/></td>' +
+                '<td><input type="text" name="contact-number" class="form-control contact-number-01"/></td>' +
+                '<td><a id="btnDelete" class="deleteContact btn btn btn-danger btn-xs"><i class="fa fa-trash"></i></a></td>' +
+                '</tr>';
+            $('#tableemergency').append(emergencycontactdiv);
+        });
+        $(document).on("click", ".deleteContact", function () {
+            $(this).closest("tr").remove(); // closest used to remove the respective 'tr' in which I have my controls
+        });
+
+        $('#formPersonnelInformation').submit(function (e) {
+            e.preventDefault();
+
+            var formData = new FormData();
+
+            var listOfEducationDetail = new Array();
+            $("#tableeducation").find("tr:gt(0)").each(function () {
+                var Education = $(this).find("td:eq(0) input[type='text']").val();
+                var Institution = $(this).find("td:eq(1) input[type='text']").val();
+                var Year = $(this).find("td:eq(2) input[type='text']").val();
+
+                var EducationDetail = { Education: Education, Institution: Institution, Year: Year };
+                listOfEducationDetail.push(EducationDetail);
+            });
+
+            var listOfProfessionalQualification = new Array();
+            $("#tableprofessional").find("tr:gt(0)").each(function () {
+                var Name = $(this).find("td:eq(0) input[type='text']").val();
+                var Status = $(this).find("td:eq(1) input[type='text']").val();
+
+                var ProfessionalQualification = { Name: Name, Status: Status };
+                listOfProfessionalQualification.push(ProfessionalQualification);
+            });
+
+            var listOfFamilyInformation = new Array();
+            $("#tablefamily").find("tr:gt(0)").each(function () {
+                var Name = $(this).find("td:eq(0) input[type='text']").val();
+                var IdentityCardNumber = $(this).find("td:eq(1) input[type='text']").val();
+                var BirthDate = $(this).find("td:eq(2) input[type='date']").val();
+                var Position = $(this).find("td:eq(3) input[type='text']").val();
+                var Employer = $(this).find("td:eq(4) input[type='text']").val();
+                var Relationship = $(this).find("td:eq(5) input[type='text']").val();
+
+                var FamilyInformation = { Name: Name, IdentityCardNumber: IdentityCardNumber, BirthDate: BirthDate, Position: Position, Employer: Employer, Relationship: Relationship };
+                listOfFamilyInformation.push(FamilyInformation);
+            });
+
+            var listOfEmergencyContact = new Array();
+            $("#tableemergency").find("tr:gt(0)").each(function () {
+                var Name = $(this).find("td:eq(0) input[type='text']").val();
+                var Relationship = $(this).find("td:eq(1) input[type='text']").val();
+                var ContactNumber = $(this).find("td:eq(2) input[type='text']").val();
+
+                var EmergencyContact = { Name: Name, Relationship: Relationship, ContactNumber: ContactNumber };
+                listOfEmergencyContact.push(EmergencyContact);
+            });
+
+            var profileImage = $('#ProfileImage')[0];
+            var profileImageFile = profileImage.files[0];
+            var personnelInformation = $("#formPersonnelInformation").find('select[name=applicationUserId],input[name=personnelNumber],input[name=prefix],input[name=name],input[name=identityCardNumber],select[name=identityCardColor],input[name=race],input[name=religion],select[name=maritalStatus],input[name=birthDate],input[name=homeNumber],input[name=mobileNumber],input[name=address],select[name=employmentStatus],input[name=reportingDate],input[name=confirmedDate],input[name=serviceDuration],input[name=positionReportingDate],input[name=departmentReportingDate],input[name=mandatoryRetirementDate],select[name=currentPosition],select[name=globalGrade],select[name=group],select[name=division],input[name=extensionNumber]').serializeArray();
+            personnelInformation.push({ name: "profileImage", value: profileImageFile });
+
+            personnelInformation.forEach(function (field) {
+                formData.append(field.name, field.value)
+            });
+
+            var fileAttachment = document.getElementById('FileAttachments');
+            var fileAttachmentFiles = fileAttachment.files;
+            for (var i = 0; i != fileAttachmentFiles.length; i++) {
+                formData.append("fileAttachments", fileAttachmentFiles[i]);
+            }
+
+            for (var i = 0; i < listOfEducationDetail.length; i++) {
+                formData.append("educationDetail[" + i + "].Education", listOfEducationDetail[i].Education);
+                formData.append("educationDetail[" + i + "].Institution", listOfEducationDetail[i].Institution);
+                formData.append("educationDetail[" + i + "].Year", listOfEducationDetail[i].Year);
+            }
+
+            for (var i = 0; i < listOfProfessionalQualification.length; i++) {
+                formData.append("professionalQualification[" + i + "].Name", listOfProfessionalQualification[i].Name);
+                formData.append("professionalQualification[" + i + "].Status", listOfProfessionalQualification[i].Status);
+            }
+
+            for (var i = 0; i < listOfFamilyInformation.length; i++) {
+                formData.append("familyInformation[" + i + "].Name", listOfFamilyInformation[i].Name);
+                formData.append("familyInformation[" + i + "].IdentityCardNumber", listOfFamilyInformation[i].IdentityCardNumber);
+                formData.append("familyInformation[" + i + "].BirthDate", listOfFamilyInformation[i].BirthDate);
+                formData.append("familyInformation[" + i + "].Position", listOfFamilyInformation[i].Position);
+                formData.append("familyInformation[" + i + "].Employer", listOfFamilyInformation[i].Employer);
+                formData.append("familyInformation[" + i + "].Relationship", listOfFamilyInformation[i].Relationship);
+            }
+
+            for (var i = 0; i < listOfEmergencyContact.length; i++) {
+                formData.append("emergencyContact[" + i + "].Name", listOfEmergencyContact[i].Name);
+                formData.append("emergencyContact[" + i + "].Relationship", listOfEmergencyContact[i].Relationship);
+                formData.append("emergencyContact[" + i + "].ContactNumber", listOfEmergencyContact[i].ContactNumber);
+            }
+
+            $.ajax({
+                beforeSend: function (request) {
+                    $("#spinnerModal").modal("show");
+                    $('.modal').modal('show');
+                    request.setRequestHeader("RequestVerificationToken", $("[name='__RequestVerificationToken']").val());
+                },
+                url: '/PersonnelInformations/Create',
+                type: 'POST',
+                contentType: false,
+                processData: false,
+                data: formData,
+                success: function (response) {
+                    //window.location = '@Url.Action("Index","PersonnelInformations")';
+                    $("#spinnerModal").modal("hide");
+                    window.location.href = response.redirectToUrl;
+                    //alert("Success.");
+                },
+            });
+        });
+    </script>
+}

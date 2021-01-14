@@ -1,0 +1,62 @@
+﻿@model RegisterViewModel
+
+@{
+    ViewBag.Title = "Add New User";
+}
+@Html.AntiForgeryToken()
+
+<div class="row">
+    <div class="col">
+        <div class="card-header border-0">
+            <h1 class="mb-5 text-center">Add New User</h1>
+        </div>
+        <div class="card border-0">
+            <form method="post" role="form">
+                <div class="row form-group m-1">
+                    <div class="col-md-6">
+                        @if (ViewData.ModelState[string.Empty] != null)
+                        {
+                            @foreach (var error in @ViewData.ModelState[string.Empty]?.Errors)
+                            {
+                                <span class="invalid-feedback" style="display: block">@error.ErrorMessage</span>
+                            }
+                        }
+                    </div>
+                </div>
+                <div class="row form-group m-1">
+                    <div class="col-md-6">
+                        <p class="mt-0 mb-0"><label asp-for="Email" class="control-label"></label></p>
+                        <input asp-for="Email" class="form-control" id="Email" name="Email" />
+                        <span asp-validation-for="Email" class="invalid-feedback" style="display: block"></span>
+                    </div>
+                </div>
+                <div class="row form-group m-1">
+                    <div class="col-md-6">
+                        <p class="mt-0 mb-0"><label asp-for="Password" class="control-label"></label></p>
+                        <input asp-for="Password" class="form-control" id="Password" name="Password" />
+                        <span asp-validation-for="Password" class="invalid-feedback" style="display: block"></span>
+                    </div>
+                </div>
+                <div class="row form-group m-1">
+                    <div class="col-md-6">
+                        <p class="mt-0 mb-0"><label asp-for="ConfirmPassword" class="control-label"></label></p>
+                        <input asp-for="ConfirmPassword" class="form-control" id="ConfirmPassword" name="ConfirmPassword" />
+                        <span asp-validation-for="ConfirmPassword" class="invalid-feedback" style="display: block"></span>
+                    </div>
+                </div>
+                <div class="row form-group m-1">
+                    <div class="col-md-6">
+                        <div class="m-auto">
+                            <button class="btn btn-primary mt-4" type="submit">Create Account</button>
+                            <a asp-action="Index" class="btn btn-outline-dark mt-4">Cancel</a>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

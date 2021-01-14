@@ -1,0 +1,624 @@
+﻿@using Microsoft.AspNetCore.Authorization
+@inject IAuthorizationService AuthorizationService
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<ApplicationUser> userManager
+@model BIA.Dashboard.Template.Models.PersonnelInformationUser
+
+@{
+    ViewData["Title"] = "Profile";
+}
+<nav class="navbar navbar-horizontal navbar-expand-md navbar-dark bg-default rounded">
+    <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+        <div class="navbar-collapse-header">
+            <div class="row">
+                <div class="col-6 collapse-close">
+                    <button class="navbar-toggler navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+                        <span></span>
+                        <span></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="navbar-nav nav-fill w-100">
+            <a class="nav-item nav-link" href="@Url.Action("Index")">Directory</a>
+            <a class="nav-item nav-link" asp-action="Profile" asp-route-id=@userManager.GetUserId(User)>Personnel Information</a>
+            @if ((await AuthorizationService.AuthorizeAsync(User, "PersonnelInformationHR")).Succeeded)
+            {
+                <a class="nav-item nav-link" asp-action="Verify">HR Verification</a>
+                <a class="nav-item nav-link" asp-action="AuditLog">Audit Log</a>
+            }
+        </div>
+    </div>
+</nav>
+<div class="row">
+    <div class="col">
+        <div class="card-header border-0">
+
+            <h1 class="mb-5 text-center">Personnel Information</h1>
+        </div>
+        <div class="card border-0">
+            <form method="post" enctype="multipart/form-data">
+                <div class="row form-group m-1 mb-3">
+                    <p class="mt-2 mb-0 ml-3"><label asp-for="Status" class="control-label"></label></p>
+                    <div class="col-md-3">
+                        <input asp-for="Status" class="form-control" id="Status" name="Status" disabled="disabled" style="background: white" />
+                    </div>
+                    <p class="mt-2 mb-0"><label asp-for="Remarks" class="control-label"></label></p>
+                    <div class="col-md-7">
+                        <input asp-for="Remarks" class="form-control" id="Remarks" name="Remarks" disabled="disabled" style="background: white" />
+                    </div>
+                </div>              
+                <div class="row form-group m-1">
+                </div>
+                <h2 class="mb-0 ml-3">Personal Profile</h2>
+                <hr class="mt-0 mb-3">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <input type="hidden" asp-for="PersonnelId" />
+                <input type="hidden" asp-for="ApplicationUserId" />
+                <div class="row form-group m-1">
+                    <div class="col-md-10">
+                    </div>
+                    <div class="col-md-2">
+                        <img src="~/images/@Model.ProfileImageName" height="130" width="130" asp-append-version="true" />
+                    </div>
+                </div>
+                <div class="row form-group m-1">
+                    <div class="col-md-6">
+                        <p class="mt-0 mb-0"><label asp-for="PersonnelNumber" class="control-label"></label></p>
+                        <input asp-for="PersonnelNumber" class="form-control" id="PersonnelNumber" name="personnelNumber" disabled="disabled" style="background: white" />
+                        <span asp-validation-for="PersonnelNumber" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="row form-group m-1">
+                    <div class="col-md-6">
+                        <p class="mt-0 mb-0"><label asp-for="Prefix" class="control-label"></label></p>
+                        <input asp-for="Prefix" class="form-control" id="Prefix" name="prefix" disabled="disabled" style="background: white" />
+                        <span asp-validation-for="Prefix" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <p class="mt-0 mb-0"><label asp-for="Name" class="control-label"></label></p>
+                        <input asp-for="Name" class="form-control" name="name" disabled="disabled" style="background: white" />
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="row form-group m-1">
+                    <div class="col-md-3">
+                        <p class="mt-0 mb-0"><label asp-for="IdentityCardNumber" class="control-label"></label></p>
+                        <input asp-for="IdentityCardNumber" class="form-control" name="identityCardNumber" disabled="disabled" style="background: white" />
+                        <span asp-validation-for="IdentityCardNumber" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-3">
+                        <p class="mt-0 mb-0"><label asp-for="IdentityCardColor" class="control-label"></label></p>
+                        <select asp-for="IdentityCardColor" class="form-control" name="identityCardColor" disabled="disabled" style="background: white">
+                            <option>Please Select One</option>
+                            <option value="Yellow">Yellow</option>
+                            <option value="Red">Red</option>
+                        </select>
+                        <span asp-validation-for="IdentityCardColor" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-3">
+                        <p class="mt-0 mb-0"><label asp-for="Race" class="control-label"></label></p>
+                        <input asp-for="Race" class="form-control" name="race" disabled="disabled" style="background: white" />
+                        <span asp-validation-for="Race" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-3">
+                        <p class="mt-0 mb-0"><label asp-for="Religion" class="control-label"></label></p>
+                        <input asp-for="Religion" class="form-control" name="religion" disabled="disabled" style="background: white" />
+                        <span asp-validation-for="Religion" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="row form-group m-1">
+                    <div class="col-md-3">
+                        <p class="mt-0 mb-0"><label asp-for="MaritalStatus" class="control-label"></label></p>
+                        <select asp-for="MaritalStatus" class="form-control" name="maritalStatus" disabled="disabled" style="background: white">
+                            <option>Please Select One</option>
+                            <option value="Single">Single</option>
+                            <option value="Married">Married</option>
+                            <option value="Separated">Separated</option>
+                        </select>
+                        <span asp-validation-for="MaritalStatus" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-3">
+                        <p class="mt-0 mb-0"><label asp-for="BirthDate" class="control-label"></label></p>
+                        <input asp-for="BirthDate" type="text" class="form-control" name="birthDate" disabled="disabled" style="background: white" />
+                        <span asp-validation-for="BirthDate" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-3">
+                        <p class="mt-0 mb-0"><label asp-for="HomeNumber" class="control-label"></label></p>
+                        <input asp-for="HomeNumber" class="form-control" name="homeNumber" disabled="disabled" style="background: white" />
+                        <span asp-validation-for="HomeNumber" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-3">
+                        <p class="mt-0 mb-0"><label asp-for="MobileNumber" class="control-label"></label></p>
+                        <input asp-for="MobileNumber" class="form-control" name="mobileNumber" disabled="disabled" style="background: white" />
+                        <span asp-validation-for="MobileNumber" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="row form-group m-1">
+                    <div class="col-md-12">
+                        <p class="mt-0 mb-0"><label asp-for="Address" class="control-label"></label></p>
+                        <input asp-for="Address" class="form-control" name="address" disabled="disabled" style="background: white" />
+                        <span asp-validation-for="Address" class="text-danger"></span>
+                    </div>
+                </div>
+                <h2 class="mb-0 ml-3 mt-3">Career Profile</h2>
+                <hr class="mt-0 mb-3">
+                <div class="row form-group m-1">
+                    <div class="col-md-3">
+                        <p class="mt-0 mb-0"><label asp-for="EmploymentStatus" class="control-label"></label></p>
+                        <select asp-for="EmploymentStatus" class="form-control" name="employmentStatus" disabled="disabled" style="background: white">
+                            <option>Please Select One</option>
+                            <option value="Daily Paid">Daily Paid</option>
+                            <option value="Contract">Contract</option>
+                            <option value="Apprentice">Apprentice</option>
+                            <option value="Probation">Probation</option>
+                            <option value="Confirmed">Confirmed</option>
+                            <option value="Inactive">Inactive</option>
+                        </select>
+                        <span asp-validation-for="EmploymentStatus" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-3">
+                        <p class="mt-0 mb-0"><label asp-for="ReportingDate" class="control-label"></label></p>
+                        <input asp-for="ReportingDate" type="text" class="form-control" name="reportingDate" disabled="disabled" style="background: white" />
+                        <span asp-validation-for="ReportingDate" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-3">
+                        <p class="mt-0 mb-0"><label asp-for="ConfirmedDate" class="control-label"></label></p>
+                        <input asp-for="ConfirmedDate" type="text" class="form-control" name="confirmedDate" disabled="disabled" style="background: white" />
+                        <span asp-validation-for="ConfirmedDate" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-3">
+                        <p class="mt-0 mb-0"><label asp-for="ServiceDuration" class="control-label"></label></p>
+                        <input asp-for="ServiceDuration" type="text" class="form-control" name="serviceDuration" disabled="disabled" style="background: white" />
+                        <span asp-validation-for="ServiceDuration" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="row form-group m-1">
+                    <div class="col-md-3">
+                        <p class="mt-0 mb-0"><label asp-for="PositionReportingDate" class="control-label"></label></p>
+                        <input asp-for="PositionReportingDate" type="text" class="form-control" name="positionReportingDate" disabled="disabled" style="background: white" />
+                        <span asp-validation-for="PositionReportingDate" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-3">
+                        <p class="mt-0 mb-0"><label asp-for="DepartmentReportingDate" class="control-label"></label></p>
+                        <input asp-for="DepartmentReportingDate" type="text" class="form-control" name="departmentReportingDate" disabled="disabled" style="background: white" />
+                        <span asp-validation-for="DepartmentReportingDate" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-3">
+                        <p class="mt-0 mb-0"><label asp-for="MandatoryRetirementDate" class="control-label"></label></p>
+                        <input asp-for="MandatoryRetirementDate" type="text" class="form-control" name="mandatoryRetirementDate" disabled="disabled" style="background: white" />
+                        <span asp-validation-for="MandatoryRetirementDate" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-3">
+                        <p class="mt-0 mb-0"><label asp-for="CurrentPosition" class="control-label"></label></p>
+                        <select asp-for="CurrentPosition" class="form-control" name="currentPosition" disabled="disabled" style="background: white">
+                            <option value="">Please Select One</option>
+                            <option value="Managing Director">Managing Director</option>
+                            <option value="Senior Assistant Managing Director">Senior Assistant Managing Director</option>
+                            <option value="Assistant Managing Director">Assistant Managing Director</option>
+                            <option value="Executive Manager">Executive Manager</option>
+                            <option value="Senior Manager">Senior Manager</option>
+                            <option value="Manager">Manager</option>
+                            <option value="Senior Associate">Senior Associate</option>
+                            <option value="Associate">Associate</option>
+                            <option value="Assistant Officer">Assistant Officer</option>
+                            <option value="Senior Administrator">Senior Administrator</option>
+                            <option value="Administrator">Administrator</option>
+                            <option value="Driver">Driver</option>
+                        </select>
+                        <span asp-validation-for="CurrentPosition" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="row form-group m-1">
+                    <div class="col-md-3">
+                        <p class="mt-0 mb-0"><label asp-for="GlobalGrade" class="control-label"></label></p>
+                        <select asp-for="GlobalGrade" class="form-control" name="globalGrade" disabled="disabled" style="background: white">
+                            <option>Please Select One</option>
+                            <option value="A">A</option>
+                            <option value="B">B</option>
+                            <option value="C">C</option>
+                            <option value="D">D</option>
+                            <option value="E">E</option>
+                            <option value="F">F</option>
+                            <option value="G">G</option>
+                            <option value="H">H</option>
+                            <option value="I">I</option>
+                            <option value="J">J</option>
+                            <option value="K">K</option>
+                            <option value="Daily Paid">Daily Paid</option>
+                        </select>
+                        <span asp-validation-for="GlobalGrade" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-3">
+                        <p class="mt-0 mb-0"><label asp-for="Group" class="control-label"></label></p>
+                        <select asp-for="Group" class="form-control" name="group" disabled="disabled" style="background: white">
+                            <option>Please Select One</option>
+                            <option value="Professional">Professional</option>
+                            <option value="Support">Support</option>
+                        </select>
+                        <span asp-validation-for="Group" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-3">
+                        <p class="mt-0 mb-0"><label asp-for="Division" class="control-label"></label></p>
+                        <select asp-for="Division" class="form-control" name="division" disabled="disabled" style="background: white">
+                            <option value="">Please Select One</option>
+                            <option value="Accounting & Finance Operations Department">Accounting & Finance Operations Department</option>
+                            <option value="Alternative Assets Division">Alternative Assets Division</option>
+                            <option value="Back Office Division">Back Office Division</option>
+                            <option value="Business & Operations Compliance Section">Business & Operations Compliance Section</option>
+                            <option value="Enterprise Solutions Section">Enterprise Solutions Section</option>
+                            <option value="Internal Audit Division">Internal Audit Division</option>
+                            <option value="Investment Group">Investment Group</option>
+                            <option value="Legal & Corporate Affairs Department">Legal & Corporate Affairs Department</option>
+                            <option value="Listed Assets Division">Listed Assets Division</option>
+                            <option value="Management Office">Management Office</option>
+                            <option value="Middle Office Division">Middle Office Division</option>
+                            <option value="Operations Division">Operations Division</option>
+                            <option value="People Management Department">People Management Department</option>
+                            <option value="Project Management Unit">Project Management Unit</option>
+                            <option value="Real Estate Division">Real Estate Division</option>
+                            <option value="Secondment">Secondment</option>
+                            <option value="Support Group">Support Group</option>
+                        </select>
+                        <span asp-validation-for="Division" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-3">
+                        <p class="mt-0 mb-0"><label asp-for="ExtensionNumber" class="control-label"></label></p>
+                        <input asp-for="ExtensionNumber" class="form-control" name="extensionNumber" disabled="disabled" style="background: white" />
+                        <span asp-validation-for="ExtensionNumber" class="text-danger"></span>
+                    </div>
+                </div>
+                <h2 class="mb-0 ml-3 mt-3">Education Detail</h2>
+                <hr class="mt-0 mb-3">
+                <div class="row form-group m-1">
+                    <div class="table-responsive">
+                        <table id="tableeducation" class="table table-hover mb-0" style="width: 1000px;">
+                            <thead>
+                                <tr>
+                                    <th width="30%">Education</th>
+                                    <th width="30%">Institution</th>
+                                    <th width="15%">Year</th>
+                                    <th width="5%"></th>
+                                </tr>
+                            </thead>
+                            <tbody id="newEducation">
+                                @{
+                                    List<BIA.Dashboard.Template.Models.EducationDetailViewModel> educationDetails = ViewBag.EducationDetails;
+
+                                    foreach (var educationDetail in educationDetails)
+                                    {
+                                        @:<tr class="data-education-detail">
+                                            @:<td><input type="text" name="education-education" value="@educationDetail.Education" class="form-control education-education-01" disabled="disabled" style="background: white"></td>
+                                            @:<td><input type="text" name="education-institution" value="@educationDetail.Institution" class="form-control education-institution-01" disabled="disabled" style="background: white"></td>
+                                            @:<td><input type="text" name="education-year" value="@educationDetail.Year" class="form-control education-year-01" disabled="disabled" style="background: white"></td>
+                                            @*<td><a id="btnDelete" class="deleteContact btn btn btn-danger btn-xs"><i class="fa fa-trash"></i></a></td>*@
+                                        @:</tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                        @*<p class="btn btn-sm btn-outline-info mt-3 ml-3 addEducationRow" id="addEducationRow">+ Row</p>*@
+                    </div>
+                </div>
+                <h2 class="mb-0 ml-3 mt-3">Professional Qualification</h2>
+                <hr class="mt-0 mb-3">
+                <div class="row form-group m-1">
+                    <div class="table-responsive">
+                        <table id="tableprofessional" class="table table-hover mb-0" style="width: 1000px;">
+                            <thead>
+                                <tr>
+                                    <th width="45%">Professional Qualification</th>
+                                    <th width="45%">Status</th>
+                                    <th width="5%"></th>
+                                </tr>
+                            </thead>
+                            <tbody id="newProfessional">
+                                @{
+                                    List<BIA.Dashboard.Template.Models.ProfessionalQualificationViewModel> professionalQualifications = ViewBag.ProfessionalQualifications;
+
+                                    foreach (var professionalQualification in professionalQualifications)
+                                    {
+                                        @:<tr class="data-professional-qualification">
+                                            @:<td><input type="text" name="professional-professional" value="@professionalQualification.Name" class="form-control professional-professional-01" disabled="disabled" style="background: white"></td>
+                                            @:<td><input type="text" name="professional-status" value="@professionalQualification.Status" class="form-control professional-status-01" disabled="disabled" style="background: white"></td>
+                                            @*<td><a id="btnDelete" class="deleteContact btn btn btn-danger btn-xs"><i class="fa fa-trash"></i></a></td>*@
+                                        @:</tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                        @*<p class="btn btn-sm btn-outline-info mt-3 ml-3 addProfessionalRow" id="addProfessionalRow">+ Row</p>*@
+                    </div>
+                </div>
+                <h2 class="mb-0 ml-3 mt-3">Family Information</h2>
+                <hr class="mt-0 mb-3">
+                <div class="row form-group m-1">
+                    <div class="table-responsive">
+                        <table id="tablefamily" class="table table-hover mb-0" style="width: 1500px;">
+                            <thead>
+                                <tr>
+                                    <th width="25%">Name</th>
+                                    <th width="7%">Identity Card No</th>
+                                    <th width="15%">Date of Birth</th>
+                                    <th width="15%">Position</th>
+                                    <th width="15%">Employer</th>
+                                    <th width="10%">Relationship</th>
+                                    @*<th width="5%"></th>*@
+                                </tr>
+                            </thead>
+                            <tbody id="newFamily">
+                                @{
+                                    List<BIA.Dashboard.Template.Models.FamilyInformationViewModel> familyInformations = ViewBag.FamilyInformations;
+
+                                    foreach (var familyInformation in familyInformations)
+                                    {
+                                        @:<tr class="data-family-information">
+                                            @:<td><input type="text" name="family-name" value="@familyInformation.Name" class="form-control family-name-01" disabled="disabled" style="background: white"></td>
+                                            @:<td><input type="text" name="family-identityno" value="@familyInformation.IdentityCardNumber" class="form-control family-identityno-01" disabled="disabled" style="background: white"></td>
+                                            @:<td><input type="text" name="family-birthdate" value="@((@familyInformation.BirthDate != null) ? @familyInformation.BirthDate.Value.ToString("dd/MM/yyyy") : "")" class="form-control family-birthdate-01" disabled="disabled" style="background: white"></td>
+                                            @:<td><input type="text" name="family-position" value="@familyInformation.Position" class="form-control family-position-01" disabled="disabled" style="background: white"></td>
+                                            @:<td><input type="text" name="family-employer" value="@familyInformation.Employer" class="form-control family-employer-01" disabled="disabled" style="background: white"></td>
+                                            @:<td><input type="text" name="family-relationship" value="@familyInformation.Relationship" class="form-control family-relationship-01" disabled="disabled" style="background: white"></td>
+                                            @*<td><a id="btnDelete" class="deleteContact btn btn btn-danger btn-xs"><i class="fa fa-trash"></i></a></td>*@
+                                        @:</tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                        @*<p class="btn btn-sm btn-outline-info mt-3 ml-3 addRelationshipRow" id="addRelationshipRow">+ Row</p>*@
+                    </div>
+                </div>
+                @*<h2 class="mb-0 ml-3 mt-3">Emergency Contact</h2>
+                <hr class="mt-0 mb-3">
+                <div class="row form-group m-1">
+                    <div class="table-responsive">
+                        <table id="tableemergency" class="table table-hover mb-0" style="width: 1000px;">
+                            <thead>
+                                <tr>
+                                    <th width="25%">Name</th>
+                                    <th width="25%">Relationship</th>
+                                    <th width="25%">Contact Number</th>
+                                    <th width="5%"></th>
+                                </tr>
+                            </thead>
+                            <tbody id="newEmergency">
+                                @{
+                                    List<BIA.Dashboard.Template.Models.EmergencyContactViewModel> emergencyContacts = ViewBag.EmergencyContacts;
+
+                                    foreach (var emergencyContact in emergencyContacts)
+                                    {
+                                        @:<tr class="data-emergency-contact">
+                                            @:<td><input type="text" name="contact-name" value="@emergencyContact.Name" class="form-control contact-name-01" disabled="disabled" style="background: white"></td>
+                                            @:<td><input type="text" name="contact-relationship" value="@emergencyContact.Relationship" class="form-control contact-relationship-01" disabled="disabled" style="background: white"></td>
+                                            @:<td><input type="text" name="contact-number" value="@emergencyContact.ContactNumber" class="form-control contact-number-01" disabled="disabled" style="background: white"></td>
+                                        @:</tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>  
+                </div>*@
+                <h2 class="mb-0 ml-3 mt-3">Documents</h2>
+                <hr class="mt-0 mb-3">
+                <div class="row form-group m-1">
+                    <div class="table-responsive">
+                        @if (userManager.GetUserId(User) == Model.ApplicationUserId)
+                        {
+                            <div class="col-md-3">
+                                <div class="form-inline">
+                                    <p class="mt-0 mb-0"><label asp-for="FileAttachments" class="control-label"></label></p>
+                                    <input class="form-control mb-2" type="file" name="files" multiple required />
+                                    <button class="btn btn-success mb-3" type="submit" asp-controller="PersonnelInformations" asp-action="UploadUserFileToDatabase">Upload</button>
+                                </div>
+                                <div class="mt-0 mb-2">
+                                    <small>Please upload copy of below documents:</small><br />     
+                                    <small>1) Identity Card</small><br />
+                                    <small>2) Driving License</small><br />
+                                    <small>3) Passport</small><br />
+                                    <small>4) Birth Certificate</small><br />
+                                    <small>5) Professional Certificates</small><br />
+                                    <small>6) Educational Certificates</small><br />
+                                </div>
+                            </div>
+                        }
+                        <table id="tableuploads" class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th width="50%">File</th>
+                                    <th width="25%">Action</th>
+                                    <th width="5%"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @{
+                                    List<BIA.Dashboard.Template.Models.FileOnDatabaseModel> fileUploads = ViewBag.FileUploadViewModel;
+
+                                    foreach (var fileUpload in fileUploads)
+                                    {
+                                        @:<tr class="data-file-uploads">
+                                            @:<td><input type="text" name="contact-name" value="@fileUpload.Name" class="form-control contact-name-01" disabled="disabled" style="background: white"></td>
+                                            <td><a type="button" class="btn btn-outline-success" asp-controller="PersonnelInformations" asp-action="DownloadFileFromDatabase" asp-route-id="@fileUpload.FileAttachmentId">Download</a><a type="button" class="btn btn-danger" asp-controller="PersonnelInformations" asp-action="DeleteUserFileFromDatabase" asp-route-id="@fileUpload.FileAttachmentId">Delete</a></td>
+                                            @*<td><a id="btnDelete" class="deleteContact btn btn btn-danger btn-xs"><i class="fa fa-trash"></i></a></td>*@
+                                        @:</tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="row form-group m-1">
+                    <div class="col-12 text-center">
+                        <div class="m-auto">
+                            @if (userManager.GetUserId(User) == Model.ApplicationUserId)
+                            {
+                                <a asp-action="EditProfile" asp-route-id="@Model.ApplicationUserId" class="btn btn-outline-primary">Edit</a>
+                                <a href="#" onclick="SubmitVerification()" class="btn btn-primary btn-md" style="width:auto">Submit For Verification</a>
+                            }
+                            @if ((await AuthorizationService.AuthorizeAsync(User, "PersonnelInformationHR")).Succeeded && (userManager.GetUserId(User) != Model.ApplicationUserId))
+                            {
+                                <a href="#" onclick="Approve()" class="btn btn-outline-primary">Approve</a>
+                                <a href="#" onclick="ConfirmReject(@Model.PersonnelId)" class="btn btn-outline-warning">Reject</a>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content modal-xl" style="width: 150%">
+            <div class="modal-header">
+                @*<h3 class="modal-title" id="myModalLabel">Delete Personnel</h3>*@
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <h4>Reason For Rejection</h4>
+                <div class="row form-group m-1">
+                    <input type="text" class="form-control" id="RejectionReason" name="rejectionReason" />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
+                <a href="#" class="btn btn-warning" onclick="Reject()">Reject</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="spinnerModal" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-dialog-centered justify-content-center" role="document">
+        <span class="fa fa-spinner fa-spin fa-3x"></span>
+    </div>
+</div>
+
+<input type="hidden" id="hiddenPersonnelId" />
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script type="text/javascript">
+
+        //Start = document.getElementById("ConfirmedDate").value;
+        //var StartDateArray = start.split("-");
+        //var NewStartDate = new Date(StartDateArray[1] + '/' + StartDateArray[2] + '/' + StartDateArray[0]);
+
+        //End = new Date();
+
+        //var TimeDiff = Math.abs(end.getTime() - NewStartDate.getTime());
+
+        //var DiffDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
+
+        //var years = Math.floor(DiffDays / 365);
+        //var months = Math.floor(DiffDays % 365 / 30);
+        //var days = Math.floor(DiffDays % 365 % 30);
+
+        //var yearsDisplay = years > 0 ? years + (years == 1 ? " year, " : " years, ") : "";
+        //var monthsDisplay = months > 0 ? months + (months == 1 ? " month, " : " months, ") : "";
+        //var daysDisplay = days > 0 ? days + (days == 1 ? " day" : " days") : "";
+
+        document.getElementById("ConfirmedDate").onchange = function () { ServiceDuration() };
+
+        function ServiceDuration() {
+            Start = document.getElementById("ConfirmedDate").value;
+            var StartDateArray = Start.split("/");
+            var NewStartDate = new Date(StartDateArray[1] + '/' + StartDateArray[0] + '/' + StartDateArray[2]);
+
+            End = new Date();
+
+            var TimeDiff = Math.abs(End.getTime() - NewStartDate.getTime());
+
+            var DiffDays = Math.ceil(TimeDiff / (1000 * 3600 * 24));
+
+            var years = Math.floor(DiffDays / 365);
+            var months = Math.floor(DiffDays % 365 / 30);
+            var days = Math.floor(DiffDays % 365 % 30);
+
+            var yearsDisplay = years > 0 ? years + (years == 1 ? " year, " : " years, ") : "";
+            var monthsDisplay = months > 0 ? months + (months == 1 ? " month, " : " months, ") : "";
+            var daysDisplay = days > 0 ? days + (days == 1 ? " day" : " days") : "";
+            return yearsDisplay + monthsDisplay + daysDisplay; 
+        }
+
+        setInterval(function () { document.getElementById("ServiceDuration").value = ServiceDuration(); }, 1000);
+
+        var ConfirmReject = function (PersonnelId) {
+            $("#hiddenPersonnelId").val(PersonnelId);
+            $("#myModal").modal('show');
+        }
+
+        $(document).ready(function () {
+            $('.datepicker').datetimepicker({
+                dateFormat: "dd/mm/yy"
+            });
+        });
+
+        var SubmitVerification = function () {
+            var personnelId = document.getElementById('PersonnelId').value;
+            //alert(personnelId)
+            $.ajax({
+                beforeSend: function (request) {
+                    $("#spinnerModal").modal("show");
+                    request.setRequestHeader("RequestVerificationToken", $("[name='__RequestVerificationToken']").val());
+                },
+                type: 'POST',
+                url: '/PersonnelInformations/SubmitVerification',
+                data: {
+                    id: personnelId
+                },
+                success: function () {
+                    $("#spinnerModal").modal("hide");
+                    //window.location = '@Url.Action("Profile")/' + applicationUserId;
+                    window.location = '@Url.Action("Profile")';
+                }
+            })
+        }
+
+        var Approve = function () {
+            var personnelId = document.getElementById('PersonnelId').value;
+            //alert(personnelId)
+            $.ajax({
+                beforeSend: function (request) {
+                    $("#spinnerModal").modal("show");
+                    request.setRequestHeader("RequestVerificationToken", $("[name='__RequestVerificationToken']").val());
+                },
+                type: 'POST',
+                url: '/PersonnelInformations/Approve',
+                data: {
+                    id: personnelId
+                },
+                success: function () {
+                    $("#spinnerModal").modal("hide");
+                    window.location = '@Url.Action("Verify")';
+                }
+            })
+        }
+
+        var Reject = function () {
+            //var personnelId = document.getElementById('PersonnelId').value;
+            var personnelId = $("#hiddenPersonnelId").val();
+            var rejectionReason = document.getElementById('RejectionReason').value;
+            $.ajax({
+                beforeSend: function (request) {
+                    $("#spinnerModal").modal("show");
+                    request.setRequestHeader("RequestVerificationToken", $("[name='__RequestVerificationToken']").val());
+                },
+                type: 'POST',
+                url: '/PersonnelInformations/Reject',
+                data: {
+                    id: personnelId,
+                    remarks: rejectionReason,
+                },
+                success: function () {
+                    $("#spinnerModal").modal("hide");
+                    //var applicationUserId = document.getElementById('ApplicationUserId').value;
+                    window.location = '@Url.Action("Verify")';
+                }
+            })
+        }
+    </script>
+}

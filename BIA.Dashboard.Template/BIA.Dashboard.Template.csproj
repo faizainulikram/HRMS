@@ -1,0 +1,73 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <LangVersion>8.0</LangVersion>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <IncludeOpenAPIAnalyzers>true</IncludeOpenAPIAnalyzers>
+    <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
+    <UserSecretsId>BIA.Dashboard.Template-D1E6C363-D40B-40A9-B9BF-A67144FF856F</UserSecretsId>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <DockerComposeProjectPath>..\docker-compose.dcproj</DockerComposeProjectPath>
+    <IdentityUIFrameworkVersion>Bootstrap4</IdentityUIFrameworkVersion>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Remove="wwwroot\files\JWGThesis_51d3.pdf" />
+    <Content Remove="wwwroot\files\Pandey - Effects of Air Space in ABF 2004_f4e3.pdf" />
+    <Content Remove="wwwroot\images\coastalview_7c86.jpg" />
+    <Content Remove="wwwroot\images\HOIgdwie_0cbf.jfif" />
+    <Content Remove="wwwroot\images\HOIgdwie_1a1a.jfif" />
+    <Content Remove="wwwroot\images\HOIgdwie_1e82.jfif" />
+    <Content Remove="wwwroot\images\HOIgdwie_3c59.jfif" />
+    <Content Remove="wwwroot\images\HOIgdwie_7271.jfif" />
+    <Content Remove="wwwroot\images\HOIgdwie_a607.jfif" />
+    <Content Remove="wwwroot\images\HOIgdwie_a6d4.jfif" />
+    <Content Remove="wwwroot\images\HOIgdwie_bf00.jfif" />
+    <Content Remove="wwwroot\images\HOIgdwie_ce5b.jfif" />
+    <Content Remove="wwwroot\images\HOIgdwie_d40b.jfif" />
+    <Content Remove="wwwroot\images\HOIgdwie_dc97.jfif" />
+    <Content Remove="wwwroot\images\HOIgdwie_dfc6.jfif" />
+    <Content Remove="wwwroot\images\HOIgdwie_e161.jfif" />
+    <Content Remove="wwwroot\images\HOIgdwie_f684.jfif" />
+    <Content Remove="wwwroot\images\ndwdow21_601c.png" />
+    <Content Remove="wwwroot\images\ndwdow21_7c1c.png" />
+    <Content Remove="wwwroot\images\ndwdow21_c3c9.png" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <PackageReference Include="chosen" Version="1.2.0" />
+    <PackageReference Include="MailKit" Version="2.8.0" />
+    <PackageReference Include="Microsoft.AspNetCore.DataProtection.EntityFrameworkCore" Version="3.1.8" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="3.1.8" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.1.8">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="3.1.8" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Redis" Version="2.2.0" />
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.10.8" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="3.1.4" />
+    <PackageReference Include="MySql.Data.EntityFrameworkCore" Version="8.0.21" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="3.1.4" />
+    <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="3.1.8" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="3.1.8" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="3.1.8" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.8" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.8">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="SendGrid" Version="9.21.0" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <Folder Include="wwwroot\images\" />
+    <Folder Include="wwwroot\files\" />
+    <Folder Include="wwwroot\files\" />
+  </ItemGroup>
+
+</Project>

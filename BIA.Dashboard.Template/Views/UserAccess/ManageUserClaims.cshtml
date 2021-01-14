@@ -1,0 +1,63 @@
+﻿@model UserClaimsViewModel
+
+<script src="~/lib/jquery/dist/jquery.js"></script>
+<script src="~/lib/jqueryui/jquery-ui.js"></script>
+<div class="row">
+    <div class="col">
+        <div class="card-header border-0">
+            <h1 class="mb-5 text-center">Manage User Claims</h1>
+        </div>
+        <div class="card border-0">
+            <form method="post">
+                <h2 class="mb-0 ml-3">Personnel Information</h2>
+                <hr class="mt-0 mb-3">
+                <div class="row form-group m-1">
+                    <div class="col-12">
+                        @for (int i = 0; i < Model.Claims.Count; i++)
+                        {
+                            @if (Model.Claims[i].ClaimType.Contains("Personnel Information"))
+                            {
+                                <div class="form-check m-1">
+                                    <input type="hidden" asp-for="@Model.Claims[i].ClaimType" />
+                                    <input asp-for="@Model.Claims[i].IsSelected" class="form-check-input" />
+                                    <label class="form-check-label" asp-for="@Model.Claims[i].IsSelected">
+                                        @Model.Claims[i].ClaimType
+                                    </label>
+                                </div>
+                            }
+                        }
+                        <div asp-validation-summary="All" class="text-danger"></div>
+                    </div>
+                </div>
+                <h2 class="mb-0 ml-3">Payroll System</h2>
+                <hr class="mt-0 mb-3">
+                <div class="row form-group m-1">
+                    <div class="col-12">
+                        @for (int i = 0; i < Model.Claims.Count; i++)
+                        {
+                            @if (Model.Claims[i].ClaimType.Contains("Payroll"))
+                            {
+                                <div class="form-check m-1">
+                                    <input type="hidden" asp-for="@Model.Claims[i].ClaimType" />
+                                    <input asp-for="@Model.Claims[i].IsSelected" class="form-check-input" />
+                                    <label class="form-check-label" asp-for="@Model.Claims[i].IsSelected">
+                                        @Model.Claims[i].ClaimType
+                                    </label>
+                                </div>
+                            }
+                        }
+                        <div asp-validation-summary="All" class="text-danger"></div>
+                    </div>
+                </div>
+                <div class="row form-group m-1">
+                    <div class="col-12 text-center">
+                        <div class="m-auto">
+                            <input id="btnSave" type="submit" name="submit" class="btn btn-primary" />
+                            <a asp-action="Index" class="btn btn-outline-dark">Cancel</a>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
