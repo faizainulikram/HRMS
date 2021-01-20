@@ -173,6 +173,29 @@ namespace BIA.Dashboard.Template.Controllers
 
         }
 
+
+        /// <summary>
+        /// Method to update the user enable disabled status
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="isenable"></param>
+        /// <returns></returns>
+        [HttpPost]
+        public async Task<ActionResult> ChangeUserStatus(string id, int isenable)
+        {
+            var user= await _context.Users.FirstOrDefaultAsync(x => x.Id == id);
+            if (user!=null)
+            {
+                user.IsEnabled = isenable == 1 ? false : true;
+                await _context.SaveChangesAsync();
+            }
+
+
+            return RedirectToAction(nameof(Index));
+        }
+
+
+
         [HttpGet]
         public async Task<IActionResult> ManageUserClaims(string Id)
         {

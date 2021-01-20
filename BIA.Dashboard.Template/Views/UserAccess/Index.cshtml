@@ -3,6 +3,11 @@
 @{
     ViewData["Title"] = "Index";
 }
+<style>
+    .inlineElement{
+        display:inline !important;
+    }
+</style>
 <div class="row">
     <div class="col">
         <div class="card-header border-0">
@@ -31,27 +36,39 @@
                 <thead class="thead-flush">
                     <tr>
                         <th scope="col" width="50%">User</th>
+                        <th scope="col" width="50%">Status</th>
                         <th scope="col" width="25%">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach (var item in Model)
                     {
-                        <tr id="row_@item.Id">
-                            <td>@Html.DisplayFor(modelItem => item.Email)</td>
-                            <td>
-                                @*<a asp-action="EditUserDetails" asp-route-id="@item.Id" class="btn btn-sm btn-secondary">Edit Details</a>*@
-                                <a asp-action="ManageUserClaims" asp-route-id="@item.Id" class="btn btn-sm btn-secondary">Manage Claims</a>
-                                @*@if (item.LockoutEnabled == false)
-                                {
-                                    <a asp-action="DisableUser" asp-route-id="@item.Id" class="btn btn-sm btn-secondary">Disable User</a>
-                                }
-                                @if (item.LockoutEnabled == true)
-                                {
-                                    <a asp-action="EnableUser" asp-route-id="@item.Id" class="btn btn-sm btn-secondary">Enable User</a>
-                                }*@
-                            </td>
-                        </tr>
+                    <tr id="row_@item.Id">
+                        <td>@Html.DisplayFor(modelItem => item.Email)</td>
+                        <td>
+                            @if (item.IsEnabled == false)
+                            {
+                                <span class="badge badge-danger">Disabled</span>
+                            }
+                            else
+                            {
+                                <span class="badge badge-success">Enabled</span>
+                            }
+
+                        </td>
+                        <td>
+                            @if (User.Identity.Name != item.UserName)
+                            {
+                                <form method="post" class="inlineElement" asp-controller="UserAccess" asp-action="ChangeUserStatus" asp-route-id="@item.Id" asp-route-isenable="@(item.IsEnabled==false?0:1)">
+                                    <button class='btn btn-sm @(item.IsEnabled==false?"btn-success":"btn-danger")' type="submit">@(item.IsEnabled==false?"Enable User":"Disable User")</button>
+                                </form> <span>|</span>
+                            }
+
+
+                            <a asp-action="ManageUserClaims" asp-route-id="@item.Id" class="btn btn-sm btn-secondary">Manage Claims</a>
+
+                        </td>
+                    </tr>
                     }
                 </tbody>
             </table>

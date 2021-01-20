@@ -80,7 +80,19 @@ namespace BIA.Dashboard.Template.Areas.Identity.Pages.Account
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User logged in.");
-                    return LocalRedirect(returnUrl);
+                    var user = await _signInManager.UserManager.FindByEmailAsync(Input.Email);
+                    if (user.IsEnabled != false)
+                    {
+                        return LocalRedirect(returnUrl);
+                    }
+                    else
+                    {
+                        ModelState.AddModelError(string.Empty, "User account is disabled. Please contact with the administrator!");
+                        return Page();
+                    }
+
+
+                    
                 }
                 if (result.RequiresTwoFactor)
                 {
