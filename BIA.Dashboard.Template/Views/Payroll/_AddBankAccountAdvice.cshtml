@@ -1,6 +1,7 @@
 ﻿@model BIA.Dashboard.Template.Models.PayrollAdvice
 
 <div class="modal fade" id="addModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <link href="~/lib/chosen/chosen.min.css" rel="stylesheet" asp-append-version="true" />
     <div class="modal-dialog modal-xl">
         <div class="modal-content modal-xl" style="width: 150%">
             <div class="modal-header">
@@ -36,7 +37,7 @@
                                 </div>
                                 <div class="col-md-6">
                                     <p class="mt-0 mb-0"><label asp-for="TransactionEndDate" class="control-label"></label></p>
-                                    <input asp-for="TransactionEndDate" class="form-control" id="TransactionEndDate" asp-format="{0:dd/MM/yyyy}" value="2999-12-31"/>
+                                    <input asp-for="TransactionEndDate" class="form-control" id="TransactionEndDate" asp-format="{0:dd/MM/yyyy}" value="2999-12-31" />
                                     <span asp-validation-for="TransactionEndDate" class="text-danger"></span>
                                 </div>
                             </div>
@@ -45,7 +46,7 @@
                                 <div class="col-md-12">
                                     <p class="mt-0 mb-0"><label asp-for="PersonnelInformation" class="control-label"></label></p>
                                     <select asp-for="PersonnelInformationId" id="PersonnelInformationId" name="personnelInformationId" class="form-control" asp-items="ViewBag.PersonnelId" onchange="getIcNumber()">
-                                        <option value="">Select Personnel</option>  
+                                        <option value="">Select Personnel</option>
                                     </select>
                                     <span asp-validation-for="PersonnelInformationId" class="text-danger"></span>
                                 </div>
@@ -53,7 +54,7 @@
                             <div class="row form-group m-1">
                                 <div class="col-md-12">
                                     <p class="mt-0 mb-0"><label asp-for="ICNumber" class="control-label"></label></p>
-                                    <input asp-for="ICNumber" class="form-control" id="ICNumber" />
+                                    <input asp-for="ICNumber" class="form-control" id="ICNumber" disabled="disabled"/>
                                     <span asp-validation-for="ICNumber" class="text-danger"></span>
                                 </div>
                             </div>
@@ -78,7 +79,7 @@
                                     <span asp-validation-for="BranchCode" class="text-danger"></span>
                                 </div>
                             </div>
-                            <div class="row form-group m-1">
+                            <div class="row form-group m-1">    
                                 <div class="col-md-6">
                                     <p class="mt-0 mb-0"><label asp-for="BankAccountType" class="control-label"></label></p>
                                     <input asp-for="BankAccountType" class="form-control" id="BankAccountType" />
@@ -102,7 +103,7 @@
                 </div>
                 <div class="modal-footer">
                     <a href="#" class="btn btn-warning" data-dismiss="modal">Cancel</a>
-                    <input class="btn btn-default" type="submit" value="Confirm" />
+                    <input class="btn btn-default" type="submit" value="Confirm"/>
                     @*<a href="#" class="btn btn-default" onclick="AddAdvice()">Confirm</a>*@
                 </div>
             </form>
@@ -113,7 +114,7 @@
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
     <script type="text/javascript">
-        $(document).ready(function () { 
+        $(document).ready(function () {
             $("#PersonnelInformationId").chosen();
         });
 

@@ -1,11 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "aVgspGvo+3f4iRa5v+azrrQbaBtF8McI33AEgBfxJSsVGUmyvmWMEXVAMZ3YEzC5RefTlWf8yhR7V2Co7qqiMA==",
+  "dgSpecHash": "Wv4PhumDGf1yNc9LQk6q21drNHg2e9Odw57K2b5y6BBYqiR7cl+PRrRNEghKK/HWne5zQlkE+0bVHNGoOsrSBw==",
   "success": true,
   "projectFilePath": "C:\\Users\\Fa'iz\\Desktop\\HRMS_2\\hrms_2\\BIA.Dashboard.Template\\BIA.Dashboard.Template.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Fa'iz\\.nuget\\packages\\bouncycastle.netcore\\1.8.3\\bouncycastle.netcore.1.8.3.nupkg.sha512",
-    "C:\\Users\\Fa'iz\\.nuget\\packages\\chosen\\1.2.0\\chosen.1.2.0.nupkg.sha512",
     "C:\\Users\\Fa'iz\\.nuget\\packages\\google.protobuf\\3.6.1\\google.protobuf.3.6.1.nupkg.sha512",
     "C:\\Users\\Fa'iz\\.nuget\\packages\\k4os.compression.lz4\\1.1.11\\k4os.compression.lz4.1.1.11.nupkg.sha512",
     "C:\\Users\\Fa'iz\\.nuget\\packages\\k4os.compression.lz4.streams\\1.1.11\\k4os.compression.lz4.streams.1.1.11.nupkg.sha512",

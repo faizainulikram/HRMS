@@ -417,7 +417,7 @@ namespace BIA.Dashboard.Template.Migrations
                         .IsRequired()
                         .HasColumnType("char(10)");
 
-                    b.Property<int>("PayrollLedgerId")
+                    b.Property<int?>("PayrollLedgerId")
                         .HasColumnType("int");
 
                     b.Property<int>("PersonnelInformationId")
@@ -1000,9 +1000,7 @@ namespace BIA.Dashboard.Template.Migrations
                 {
                     b.HasOne("BIA.Dashboard.Template.Models.PayrollLedger", "Ledger")
                         .WithMany()
-                        .HasForeignKey("PayrollLedgerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("PayrollLedgerId");
 
                     b.HasOne("BIA.Dashboard.Template.Models.PersonnelInformation", "PersonnelInformation")
                         .WithMany()

@@ -90,15 +90,19 @@
             @*<a asp-area="Identity" asp-page="/Account/Register" class="btn btn-success btn-md" style="width:auto">
                     Add New User
                 </a>*@
-            <a href="#" onclick="ConfirmAdd()" class="btn btn-success btn-md" style="width:auto">Add New Bank Account Advice</a>
+            <a href="#" onclick="ConfirmAdd()" class="btn btn-success btn-md" style="width:auto">Add New Deduction Advice</a>
         </div>
         @*<button class="btn btn-success btn-md" onclick="window.location='@Url.Action("Create", "PersonnelInformations")'">Add</button>*@
         <div class="table-responsive">
             <table class="table align-items-center table-flush">
                 <thead class="thead-flush">
                     <tr>
-                        <th scope="col" width="25%">IC Number</th>
-                        <th scope="col" width="50%">Remarks</th>
+                        <th scope="col" width="15%">No</th>
+                        <th scope="col" width="15%">Date</th>
+                        <th scope="col" width="15%">IC Number</th>
+                        <th scope="col" width="15%">Name</th>
+                        <th scope="col" width="15%">Remarks</th>
+                        <th scope="col" width="15%">Amount</th>
                         <th></th>
                     </tr>
                 </thead>
@@ -106,6 +110,10 @@
                     @foreach (var item in Model)
                     {
                         <tr id="row_@item.PayrollAdviceId">
+                            <td>@Html.DisplayFor(modelItem => item.AdviceNumber)</td>
+                            <td>@Html.DisplayFor(modelItem => item.Date)</td>
+                            <td>@Html.DisplayFor(modelItem => item.ICNumber)</td>
+                            <td>@Html.DisplayFor(modelItem => item.ICNumber)</td>
                             <td>@Html.DisplayFor(modelItem => item.ICNumber)</td>
                             <td>@Html.DisplayFor(modelItem => item.Remarks)</td>
                             <td>

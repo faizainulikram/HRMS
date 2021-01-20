@@ -30,7 +30,6 @@ namespace BIA.Dashboard.Template.Models
         public int PersonnelInformationId { get; set; }
 
         [Display(Name = "Personnel")]
-        [Required]
         public PersonnelInformation PersonnelInformation { get; set; }
 
         [Required]
@@ -62,11 +61,11 @@ namespace BIA.Dashboard.Template.Models
         public DateTime TransactionEndDate { get; set; }
 
         // linked to payroll ledger
-        public int PayrollLedgerId { get; set; }
+        public int? PayrollLedgerId { get; set; }
         public PayrollLedger Ledger { get; set; }
 
         [Column(TypeName = "char(1)")]
-        public int Status { get; set; }
+        public string Status { get; set; }
 
         [Display(Name = "Status Date")]
         [DataType(DataType.Date)]

@@ -91,7 +91,7 @@ namespace BIA.Dashboard.Template.Controllers
         {
             var personnelInformation = await _context.PersonnelInformation.FirstOrDefaultAsync(x => x.PersonnelId == id);
 
-            var icNumber = personnelInformation.IdentityCardNumber;
+            var icNumber = personnelInformation.IdentityCardNumber.Replace("-", "");
 
             return Json(icNumber);
         }
@@ -238,33 +238,64 @@ namespace BIA.Dashboard.Template.Controllers
             return PartialView("_EditBankAccountAdvice", payrollAdvice);
         }
 
+        public async Task<IActionResult> CancelAdviceReplacement(int id)
+        {
+            var payrollAdvice = await _context.PayrollAdvice
+                .FirstOrDefaultAsync(m => m.PayrollAdviceId == id);
+
+            var personnelInformation = await _context.PersonnelInformation
+                .FirstOrDefaultAsync(m => m.PersonnelId == payrollAdvice.PersonnelInformationId);
+
+            var payrollLedger = await _context.PayrollLedger
+                .FirstOrDefaultAsync(m => m.PayrollLedgerId == payrollAdvice.PayrollLedgerId);
+
+            if (payrollAdvice == null)
+            {
+                return NotFound();
+            }
+
+            payrollAdvice.Status = "C";
+            payrollAdvice.StatusDate = DateTime.Now;
+
+            await _context.SaveChangesAsync();
+
+            PopulateUserDropdownList(personnelInformation);
+            PopulateLedgerDropdownList(payrollLedger);
+
+            var newPayrollAdvice = new PayrollAdvice();
+
+            newPayrollAdvice.PersonnelInformation = payrollAdvice.PersonnelInformation;
+            newPayrollAdvice.PersonnelInformationId = payrollAdvice.PersonnelInformationId;
+            newPayrollAdvice.AdviceNumber = payrollAdvice.AdviceNumber;
+            newPayrollAdvice.ICNumber = payrollAdvice.ICNumber;
+            newPayrollAdvice.Remarks = payrollAdvice.Remarks;
+            newPayrollAdvice.PayrollLedgerId = payrollAdvice.PayrollLedgerId;
+            newPayrollAdvice.Ledger = payrollAdvice.Ledger;
+            newPayrollAdvice.Earning = payrollAdvice.Earning;
+            newPayrollAdvice.Deduction = payrollAdvice.Deduction;
+            newPayrollAdvice.DDEA = payrollAdvice.DDEA;
+
+            return PartialView("_AddBankAccountAdvice", newPayrollAdvice);
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditBankAccountAdvice([FromForm] PayrollAdvice payrollAdvice)
+        public async Task<IActionResult> CancelAdviceNoReplacement(int id)
         {
-            if (ModelState.IsValid)
+            var payrollAdvice = await _context.PayrollAdvice
+                .FirstOrDefaultAsync(m => m.PayrollAdviceId == id);
+
+
+            if (payrollAdvice == null)
             {
-                try
-                {
-                    _context.Update(payrollAdvice);
-                    await _context.SaveChangesAsync();
-                }
-
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!PayrollLedgerExists(payrollAdvice.PayrollAdviceId))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-
-                return RedirectToAction(nameof(PayrollAdvice));
+                return NotFound();
             }
-            return RedirectToAction(nameof(PayrollAdvice));
+
+            payrollAdvice.Status = "C";
+            payrollAdvice.StatusDate = DateTime.Now;
+
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(BankAccountAdvice));
         }
 
         [HttpGet]

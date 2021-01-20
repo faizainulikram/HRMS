@@ -20,7 +20,7 @@
                             <div class="row form-group m-1">
                                 <div class="col-md-6">
                                     <p class="mt-0 mb-0"><label asp-for="Date" class="control-label"></label></p>
-                                    <input asp-for="Date" class="form-control" id="Date" asp-format="{0:dd/MM/yyyy}" value="@DateTime.Today.ToString("yyyy-MM-dd")" />
+                                    <input asp-for="Date" class="form-control" id="Date" asp-format="{0:dd/MM/yyyy}" />
                                     <span asp-validation-for="Date" class="text-danger"></span>
                                 </div>
                                 <div class="col-md-6">
@@ -32,12 +32,12 @@
                             <div class="row form-group m-1">
                                 <div class="col-md-6">
                                     <p class="mt-0 mb-0"><label asp-for="TransactionStartDate" class="control-label"></label></p>
-                                    <input asp-for="TransactionStartDate" class="form-control" id="TransactionStartDate" asp-format="{0:dd/MM/yyyy}" />
+                                    <input asp-for="TransactionStartDate" class="form-control" id="TransactionStartDate" asp-format="{0:yyyy-MM-dd}" />
                                     <span asp-validation-for="TransactionStartDate" class="text-danger"></span>
                                 </div>
                                 <div class="col-md-6">
                                     <p class="mt-0 mb-0"><label asp-for="TransactionEndDate" class="control-label"></label></p>
-                                    <input asp-for="TransactionEndDate" class="form-control" id="TransactionEndDate" asp-format="{0:dd/MM/yyyy}" value="2999-12-31" />
+                                    <input asp-for="TransactionEndDate" class="form-control" id="TransactionEndDate" asp-format="{0:yyyy-MM-dd}" />
                                     <span asp-validation-for="TransactionEndDate" class="text-danger"></span>
                                 </div>
                             </div>
@@ -45,14 +45,16 @@
                             <div class="row form-group m-1">
                                 <div class="col-md-12">
                                     <p class="mt-0 mb-0"><label asp-for="PersonnelInformation" class="control-label"></label></p>
-                                    <input asp-for="PersonnelInformation" class="form-control" id="PersonnelInformation" />
-                                    <span asp-validation-for="PersonnelInformation" class="text-danger"></span>
+                                    <select asp-for="PersonnelInformationId" id="PersonnelInformationId" name="personnelInformationId" class="form-control" asp-items="ViewBag.PersonnelId" onchange="getIcNumber()">
+                                        <option value="">Select Personnel</option>
+                                    </select>
+                                    <span asp-validation-for="PersonnelInformationId" class="text-danger"></span>
                                 </div>
                             </div>
                             <div class="row form-group m-1">
                                 <div class="col-md-12">
                                     <p class="mt-0 mb-0"><label asp-for="ICNumber" class="control-label"></label></p>
-                                    <input asp-for="ICNumber" class="form-control" id="ICNumber" />
+                                    <input asp-for="ICNumber" class="form-control" id="ICNumber" disabled="disabled"/>
                                     <span asp-validation-for="ICNumber" class="text-danger"></span>
                                 </div>
                             </div>

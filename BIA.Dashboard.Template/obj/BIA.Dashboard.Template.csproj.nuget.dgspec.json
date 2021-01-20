@@ -113,10 +113,6 @@
             "SendGrid": {
               "target": "Package",
               "version": "[9.21.0, )"
-            },
-            "chosen": {
-              "target": "Package",
-              "version": "[1.2.0, )"
             }
           },
           "imports": [

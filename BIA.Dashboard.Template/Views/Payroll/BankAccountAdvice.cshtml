@@ -26,7 +26,7 @@
         <div class="navbar-nav nav-fill w-100">
             <ul class="navbar-nav nav-fill w-100">
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" 
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         Posting/Enquiry
                     </a>
@@ -103,7 +103,10 @@
                         <th scope="col" width="15%">IC Number</th>
                         <th scope="col" width="15%">Name</th>
                         <th scope="col" width="15%">Remarks</th>
+                        <th scope="col" width="15%">Status</th>
                         <th></th>
+
+
                     </tr>
                 </thead>
                 <tbody>
@@ -115,6 +118,7 @@
                             <td>@Html.DisplayFor(modelItem => item.ICNumber)</td>
                             <td>@Html.DisplayFor(modelItem => item.PersonnelInformation.Name)</td>
                             <td>@Html.DisplayFor(modelItem => item.Remarks)</td>
+                            <td>@Html.DisplayFor(modelItem => item.Status)</td>
                             <td>
                                 @*<a asp-action="EditUserDetails" asp-route-id="@item.Id" class="btn btn-sm btn-secondary">Edit Details</a>*@
                                 <a href="#" onclick="ConfirmEdit(@item.PayrollAdviceId)" class="btn btn-sm btn-secondary">Edit</a>
@@ -158,6 +162,46 @@
 </div>
 <div id="cancelDiv">
 </div>
+<div class="modal fade" id="cancelModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="myModalLabel">Cancel Record</h3>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <h4>Cancel record, are you sure?</h4>
+
+            </div>
+            <div class="modal-footer">
+                <a href="#" class="btn btn-default" data-dismiss="modal">No</a>
+                <a href="#" class="btn btn-warning" onclick="ReplacementRecord()">Yes</a>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="replacementModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="myModalLabel">Replacement</h3>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <h4>Replacement?</h4>
+
+            </div>
+            <div class="modal-footer">
+                <a href="#" class="btn btn-default" data-dismiss="modal" onclick="CancelAdviceNoReplacement()">No</a>
+                <a href="#" class="btn btn-warning" onclick="CancelAdviceReplacement()">Yes</a>
+            </div>
+        </div>
+    </div>
+</div>
 <div class="modal fade" id="spinnerModal" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-dialog-centered justify-content-center" role="document">
         <span class="fa fa-spinner fa-spin fa-3x"></span>
@@ -170,8 +214,25 @@
 <script type="text/javascript">
         //document.getElementById("addBankAccountAdvice").onclick = $("#addDiv").load("/Payroll/AddPayrollAdvice",
         //    function () { $("#addModal").modal('toggle'); });
+        $(document).ready(function () {
+            $("#PersonnelInformationId").chosen();
+        });
 
-        $('#addNewBankAccountAdvice').click(function() {
+        $(document).ajaxComplete(function () {
+            $("#PersonnelInformationId").chosen();
+        });
+
+        var ConfirmCancel = function (PayrollAdviceId) {
+            $("#hiddenAdviceId").val(PayrollAdviceId);
+            $("#cancelModal").modal('show');
+        }
+
+        var ReplacementRecord = function () {
+            $("#cancelModal").modal('hide');
+            $("#replacementModal").modal('show');
+        }
+
+        $('#addNewBankAccountAdvice').click(function () {
             var addUrl = '@Url.Action("AddBankAccountAdvice", "Payroll")';
             $('#addDiv').load(addUrl, function () {
                 $("#addModal").modal('toggle');
@@ -180,7 +241,7 @@
                 startDate = d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-01';
                 document.getElementById("TransactionStartDate").value = startDate;
             });
-        })
+        });
 
         var ConfirmEdit = function (PayrollAdviceId) {
             var editUrl = '/Payroll/EditBankAccountAdvice/' + PayrollAdviceId;
@@ -204,6 +265,52 @@
                     //$('#addBankAccountAdvice input[name="ICNumber"]').value = data.identityCardNumber;
                 },
             });
+        }
+
+        var CancelAdviceNoReplacement = function () {
+            var payrollId = document.getElementById('hiddenAdviceId').value;
+            $.ajax({
+                beforeSend: function (request) {
+                    $("#spinnerModal").modal("show");
+                    request.setRequestHeader("RequestVerificationToken", $("[name='__RequestVerificationToken']").val());
+                },
+                type: 'POST',
+                url: '/Payroll/CancelAdviceNoReplacement',
+                data: {
+                    id: payrollId
+                },
+                success: function () {
+                    $("#spinnerModal").modal("hide");
+                    window.location = '@Url.Action("BankAccountAdvice")';
+                }
+            })
+        }
+
+        var CancelAdviceReplacement = function () {
+            var payrollId = document.getElementById('hiddenAdviceId').value;
+            $.ajax({
+                beforeSend: function (request) {
+                    //$("#spinnerModal").modal("show");
+                    request.setRequestHeader("RequestVerificationToken", $("[name='__RequestVerificationToken']").val());
+                },
+                type: 'POST',
+                url: '/Payroll/CancelAdviceNoReplacement',
+                data: {
+                    id: payrollId
+                },
+                success: function () {
+                    $("#replacementModal").modal('hide');
+                    var loadUrl = '/Payroll/CancelAdviceReplacement/' + payrollId;
+                    $('#addDiv').load(loadUrl, function () {
+                        $("#addModal").modal('toggle');
+                        $.validator.unobtrusive.parse("#addBankAccountAdvice");
+                        var d = new Date();
+                        startDate = d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-01';
+                        document.getElementById("TransactionStartDate").value = startDate;
+                    });
+                    //$("#spinnerModal").modal("hide");
+                }
+            })
         }
 
 </script>

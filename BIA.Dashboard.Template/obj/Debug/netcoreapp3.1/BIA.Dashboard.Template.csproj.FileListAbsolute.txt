@@ -3234,9 +3234,6 @@ C:\Users\Fa'iz\Desktop\HRMS_2\hrms_2\BIA.Dashboard.Template\bin\Debug\netcoreapp
 C:\Users\Fa'iz\Desktop\HRMS_2\hrms_2\BIA.Dashboard.Template\obj\Debug\netcoreapp3.1\BIA.Dashboard.Template.csprojAssemblyReference.cache
 C:\Users\Fa'iz\Desktop\HRMS_2\hrms_2\BIA.Dashboard.Template\obj\Debug\netcoreapp3.1\BIA.Dashboard.Template.AssemblyInfoInputs.cache
 C:\Users\Fa'iz\Desktop\HRMS_2\hrms_2\BIA.Dashboard.Template\obj\Debug\netcoreapp3.1\BIA.Dashboard.Template.AssemblyInfo.cs
-C:\Users\Fa'iz\Desktop\HRMS_2\hrms_2\BIA.Dashboard.Template\obj\Debug\netcoreapp3.1\BIA.Dashboard.Template.csproj.CoreCompileInputs.cache
-C:\Users\Fa'iz\Desktop\HRMS_2\hrms_2\BIA.Dashboard.Template\obj\Debug\netcoreapp3.1\BIA.Dashboard.Template.MvcApplicationPartsAssemblyInfo.cs
-C:\Users\Fa'iz\Desktop\HRMS_2\hrms_2\BIA.Dashboard.Template\obj\Debug\netcoreapp3.1\BIA.Dashboard.Template.MvcApplicationPartsAssemblyInfo.cache
 C:\Users\Fa'iz\Desktop\HRMS_2\hrms_2\BIA.Dashboard.Template\obj\Debug\netcoreapp3.1\BIA.Dashboard.Template.RazorAssemblyInfo.cache
 C:\Users\Fa'iz\Desktop\HRMS_2\hrms_2\BIA.Dashboard.Template\obj\Debug\netcoreapp3.1\BIA.Dashboard.Template.RazorAssemblyInfo.cs
 C:\Users\Fa'iz\Desktop\HRMS_2\hrms_2\BIA.Dashboard.Template\obj\Debug\netcoreapp3.1\BIA.Dashboard.Template.TagHelpers.input.cache
@@ -3323,3 +3320,6 @@ C:\Users\Fa'iz\Desktop\HRMS_2\hrms_2\BIA.Dashboard.Template\obj\Debug\netcoreapp
 C:\Users\Fa'iz\Desktop\HRMS_2\hrms_2\BIA.Dashboard.Template\obj\Debug\netcoreapp3.1\BIA.Dashboard.Template.dll
 C:\Users\Fa'iz\Desktop\HRMS_2\hrms_2\BIA.Dashboard.Template\obj\Debug\netcoreapp3.1\BIA.Dashboard.Template.pdb
 C:\Users\Fa'iz\Desktop\HRMS_2\hrms_2\BIA.Dashboard.Template\obj\Debug\netcoreapp3.1\BIA.Dashboard.Template.genruntimeconfig.cache
+C:\Users\Fa'iz\Desktop\HRMS_2\hrms_2\BIA.Dashboard.Template\obj\Debug\netcoreapp3.1\BIA.Dashboard.Template.csproj.CoreCompileInputs.cache
+C:\Users\Fa'iz\Desktop\HRMS_2\hrms_2\BIA.Dashboard.Template\obj\Debug\netcoreapp3.1\BIA.Dashboard.Template.MvcApplicationPartsAssemblyInfo.cs
+C:\Users\Fa'iz\Desktop\HRMS_2\hrms_2\BIA.Dashboard.Template\obj\Debug\netcoreapp3.1\BIA.Dashboard.Template.MvcApplicationPartsAssemblyInfo.cache

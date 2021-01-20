@@ -16,9 +16,6 @@
           "lib/netstandard2.0/BouncyCastle.Crypto.dll": {}
         }
       },
-      "chosen/1.2.0": {
-        "type": "package"
-      },
       "Google.Protobuf/3.6.1": {
         "type": "package",
         "dependencies": {
@@ -3754,20 +3751,6 @@
         "lib/netstandard2.0/BouncyCastle.Crypto.xml",
         "lib/xamarinios/BouncyCastle.Crypto.dll",
         "lib/xamarinios/BouncyCastle.Crypto.xml"
-      ]
-    },
-    "chosen/1.2.0": {
-      "sha512": "nrcF57kN5LRb/drcnK43W+cDKuAxDXhVlTBI4wOmm2eTjQW1/nRjV/G9zs+xavsgtquTH7CeJbYDbZZOsMrABw==",
-      "type": "package",
-      "path": "chosen/1.2.0",
-      "files": [
-        ".nupkg.metadata",
-        ".signature.p7s",
-        "chosen.1.2.0.nupkg.sha512",
-        "chosen.nuspec",
-        "content/Content/chosen-sprite.png",
-        "content/Content/chosen-sprite@2x.png",
-        "content/Content/chosen.css"
       ]
     },
     "Google.Protobuf/3.6.1": {
@@ -11370,8 +11353,7 @@
       "Microsoft.VisualStudio.Web.CodeGeneration.Design >= 3.1.4",
       "MySql.Data.EntityFrameworkCore >= 8.0.21",
       "Npgsql.EntityFrameworkCore.PostgreSQL >= 3.1.4",
-      "SendGrid >= 9.21.0",
-      "chosen >= 1.2.0"
+      "SendGrid >= 9.21.0"
     ]
   },
   "packageFolders": {
@@ -11487,10 +11469,6 @@
           "SendGrid": {
             "target": "Package",
             "version": "[9.21.0, )"
-          },
-          "chosen": {
-            "target": "Package",
-            "version": "[1.2.0, )"
           }
         },
         "imports": [
