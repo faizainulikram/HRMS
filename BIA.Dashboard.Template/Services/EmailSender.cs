@@ -1,49 +1,41 @@
 ﻿using BIA.Dashboard.Template.Services;
 using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using SendGrid;
 using SendGrid.Helpers.Mail;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace BIA.Dashboard.Template.Services
 {
     public class EmailSender : IEmailSender
     {
-        public EmailSender(IOptions<AuthMessageSenderOptions> optionsAccessor)
+        private string FromEmail;
+        private string API_KEY;
+        public EmailSender(IConfiguration configuration)
         {
-            Options = optionsAccessor.Value;
+            this.FromEmail = configuration.GetValue<string>("EmailSender:FromEmail");
+            this.API_KEY = configuration.GetValue<string>("EmailSender:ApiKey");
         }
 
-        public AuthMessageSenderOptions Options { get; } //set only via Secret Manager
-
-        public async Task SendEmailAsync(string email, string subject, string message)
+        public async Task SendEmailAsync(string toEmail, string subject, string htmlMessage)
         {
-            await Execute(Options.SendGridKey, subject, message, email);
-        }
 
-        public async Task Execute(string apiKey, string subject, string message, string email)
-        {
-            var client = new SendGridClient(apiKey);
-            var msg = new SendGridMessage()
+            var client = new SendGridClient(API_KEY);
+            List<EmailAddress> ToEmailAddresses = new List<EmailAddress>();
+            EmailAddress FromEmailAddress = new EmailAddress(FromEmail, FromEmail);
+            List<string> ToEmails = string.IsNullOrEmpty(toEmail) ? new List<string>() : toEmail.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries).ToList();
+            foreach (var ToEmail in ToEmails)
             {
-                From = new EmailAddress("prtest.15071983@gmail.com", Options.SendGridUser),
-                Subject = subject,
-                PlainTextContent = message,
-                HtmlContent = message
-            };
-
-            msg.AddTo(new EmailAddress(email));
-            // Disable click tracking.
-            // See https://sendgrid.com/docs/User_Guide/Settings/tracking.html
-            msg.SetClickTracking(false, false);
-
+                ToEmailAddresses.Add(new EmailAddress(ToEmail, ToEmail));
+            }
+            SendGridMessage msg = MailHelper.CreateSingleEmailToMultipleRecipients(FromEmailAddress, ToEmailAddresses, subject, "", htmlMessage);
             await client.SendEmailAsync(msg);
-        }
 
-        public Task SendEmailAsync(List<string> emails, string subject, string message)
-        {
-            throw new System.NotImplementedException();
         }
     }
 }
