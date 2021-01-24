@@ -17,12 +17,12 @@ namespace BIA.Dashboard.Template.Services
 
         public AuthMessageSenderOptions Options { get; } //set only via Secret Manager
 
-        public Task SendEmailAsync(string email, string subject, string message)
+        public async Task SendEmailAsync(string email, string subject, string message)
         {
-            return Execute(Options.SendGridKey, subject, message, email);
+            await Execute(Options.SendGridKey, subject, message, email);
         }
 
-        public Task Execute(string apiKey, string subject, string message, string email)
+        public async Task Execute(string apiKey, string subject, string message, string email)
         {
             var client = new SendGridClient(apiKey);
             var msg = new SendGridMessage()
@@ -32,14 +32,13 @@ namespace BIA.Dashboard.Template.Services
                 PlainTextContent = message,
                 HtmlContent = message
             };
-            
-            msg.AddTo(new EmailAddress(email));
 
+            msg.AddTo(new EmailAddress(email));
             // Disable click tracking.
             // See https://sendgrid.com/docs/User_Guide/Settings/tracking.html
             msg.SetClickTracking(false, false);
 
-            return client.SendEmailAsync(msg);
+            await client.SendEmailAsync(msg);
         }
 
         public Task SendEmailAsync(List<string> emails, string subject, string message)

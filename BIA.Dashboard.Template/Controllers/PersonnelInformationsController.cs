@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using BIA.Dashboard.Template.Services;
+using BIA.Dashboard.Template.DTOS;
 
 namespace BIA.Dashboard.Template.Controllers
 {
@@ -22,50 +23,116 @@ namespace BIA.Dashboard.Template.Controllers
     public class PersonnelInformationsController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly IAuthorizationService authorizationService;
         private readonly IWebHostEnvironment hostingEnvironment;
         private readonly UserManager<ApplicationUser> userManager;
         private readonly IEmailSender _emailSender;
 
-        public PersonnelInformationsController(ApplicationDbContext context, IWebHostEnvironment environment, UserManager<ApplicationUser> userManager, IEmailSender emailSender)
+
+        public PersonnelInformationsController(ApplicationDbContext context, IAuthorizationService AuthorizationService, IWebHostEnvironment environment, UserManager<ApplicationUser> userManager, IEmailSender emailSender)
         {
             _context = context;
+            authorizationService = AuthorizationService;
             hostingEnvironment = environment;
             this.userManager = userManager;
             _emailSender = emailSender;
         }
 
         // GET: PersonnelInformations
-        public async Task<IActionResult> Index(string searchString, string currentFilter, int? pageNumber)
+        public IActionResult Index()
+        {
+           
+            return View();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetDirectoryData()
         {
 
+            var draw = int.Parse(HttpContext.Request.Query["draw"]);
+            var start = int.Parse(HttpContext.Request.Query["start"]);
+            var length = int.Parse(Request.Query["length"].ToString());
+            string sortColumnDirection = Request.Query["order[0][dir]"].ToString();
+            var searchValue = Request.Query["search[value]"].ToString();
+            searchValue = string.IsNullOrEmpty(searchValue) ? null : searchValue;
+            string columnNum = Request.Query["order[0][column]"].ToString();
+            string sortColumn = Request.Query["columns[" + columnNum + "][name]"].ToString();
 
-
-            if (searchString != null)
+            var query = _context.PersonnelInformation.Where(s => searchValue == null || s.Name.Contains(searchValue)
+            || s.IdentityCardNumber.Contains(searchValue)
+            || s.CurrentPosition.Contains(searchValue)
+            || s.Division.Contains(searchValue)
+            );
+            
+            var dataQuery = query.Select(x => new DirectoryDataDto
             {
-                pageNumber = 1;
+                 Division=x.Division,
+                  ExtensionNumber=x.ExtensionNumber,
+                   Position=x.CurrentPosition,
+                    Name=x.Name,
+                     PersonnelId=x.PersonnelId
+            });
+            if (sortColumnDirection == "desc")
+            {
+                switch (sortColumn)
+                {
+                    case "division":
+                        dataQuery = dataQuery.OrderByDescending(x => x.Division);
+                        break;
+                    case "extensionNumber":
+                        dataQuery = dataQuery.OrderByDescending(x => x.ExtensionNumber);
+                        break;
+                    case "position":
+                        dataQuery = dataQuery.OrderByDescending(x => x.Position);
+                        break;
+                    case "name":
+                        dataQuery = dataQuery.OrderByDescending(x => x.Name);
+                        break;
+                    default:
+                        dataQuery = dataQuery.OrderByDescending(x => x.PersonnelId);
+                        break;
+                }
             }
             else
             {
-                searchString = currentFilter;
+                switch (sortColumn)
+                {
+                    case "division":
+                        dataQuery = dataQuery.OrderBy(x => x.Division);
+                        break;
+                    case "extensionNumber":
+                        dataQuery = dataQuery.OrderBy(x => x.ExtensionNumber);
+                        break;
+                    case "position":
+                        dataQuery = dataQuery.OrderBy(x => x.Position);
+                        break;
+                    case "name":
+                        dataQuery = dataQuery.OrderBy(x => x.Name);
+                        break;
+                    default:
+                        dataQuery = dataQuery.OrderBy(x => x.PersonnelId);
+                        break;
+                }
             }
 
-            ViewData["CurrentFilter"] = searchString;
-
-            var personnels = from s in _context.PersonnelInformation
-                             select s;
-
-            if (!String.IsNullOrEmpty(searchString))
+            var totalRecords = dataQuery.Count();
+            var data = await dataQuery.Skip(start).Take(length).ToListAsync();
+            foreach (var item in data)
             {
-                personnels = personnels.Where(s => (s.Name.Contains(searchString) 
-                || s.IdentityCardNumber.Contains(searchString)
-                || s.CurrentPosition.Contains(searchString)
-                || s.Division.Contains(searchString)
-                ));
-            }
 
-            int pageSize = 10;
-            return View(await PaginatedList<PersonnelInformation>.CreateAsync(personnels.AsNoTracking(), pageNumber ?? 1, pageSize));
+                if ((await authorizationService.AuthorizeAsync(User, "PersonnelInformationHR")).Succeeded || (await authorizationService.AuthorizeAsync(User, "PersonnelInformationHOD")).Succeeded)
+                {
+                    item.Action += @"<a class='btn btn-sm btn-secondary' href='/PersonnelInformations/Details/"+ item.PersonnelId + "'>Details</a>";
+                }
+                if ((await authorizationService.AuthorizeAsync(User, "PersonnelInformationHR")).Succeeded)
+                {
+                    item.Action += @"<a href='#' onclick='ConfirmDelete("+ item.PersonnelId + ")' class='btn btn-sm btn-warning'>Delete</a>";
+                }
+
+            }
+            return Json(new { draw = draw, recordsFiltered = data.Count, recordsTotal = totalRecords, data = data });
         }
+
 
         private void PopulateUserDropDownList(object selectedUser = null)
         {
@@ -103,8 +170,8 @@ namespace BIA.Dashboard.Template.Controllers
 
             foreach (var educationDetail in allEducationDetail)
             {
-                if (educationDetail.PersonnelInformation != null) 
-                { 
+                if (educationDetail.PersonnelInformation != null)
+                {
                     if (educationDetail.PersonnelInformation.PersonnelId == personnelInformation.PersonnelId)
                     {
                         educationDetailViewModel.Add(new EducationDetailViewModel
@@ -328,7 +395,7 @@ namespace BIA.Dashboard.Template.Controllers
         }
 
         public async Task<IActionResult> DeleteFileFromDatabase(int id)
-        { 
+        {
             var file = await _context.FilesOnDatabase.Where(x => x.FileAttachmentId == id).FirstOrDefaultAsync();
             _context.FilesOnDatabase.Remove(file);
             _context.SaveChanges();
@@ -523,7 +590,7 @@ namespace BIA.Dashboard.Template.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([FromForm] PersonnelInformation personnelInformation)
-            //, [FromForm] EducationDetail[] listOfEducationDetail, [FromForm] ProfessionalQualification[] listOfProfessionalQualification, [FromForm] EmergencyContact[] listOfEmergencyContact, [FromForm] FamilyInformation[] listOfFamilyInformation)
+        //, [FromForm] EducationDetail[] listOfEducationDetail, [FromForm] ProfessionalQualification[] listOfProfessionalQualification, [FromForm] EmergencyContact[] listOfEmergencyContact, [FromForm] FamilyInformation[] listOfFamilyInformation)
         {
 
             if (ModelState.IsValid)
@@ -837,7 +904,7 @@ namespace BIA.Dashboard.Template.Controllers
                         }
                         personnelInformation.ProfileImageName = uniqueFileName;
                     }
-                    
+
                     _context.Update(personnelInformation);
 
                     if (personnelInformation.ProfileImage == null)
@@ -991,18 +1058,18 @@ namespace BIA.Dashboard.Template.Controllers
             _context.PersonnelInformationAuditLog.Add(auditLog);
             await _context.SaveChangesAsync();
 
-            //var applicationUser = await userManager.FindByIdAsync(personnelInformationUser.ApplicationUserId);
-            //var userEmail = applicationUser.Email;
+            var applicationUser = await userManager.FindByIdAsync(personnelInformationUser.ApplicationUserId);
+            var userEmail = applicationUser.Email;
 
-            //if (userEmail != null)
-            //{
-            //    await _emailSender.SendEmailAsync(
-            //        userEmail,
-            //        "Update To Personnel Information Has Been Rejected",
-            //        $"Update to personnel information has been rejected. <br><br> Reason: { remarks }");
+            if (userEmail != null)
+            {
+                await _emailSender.SendEmailAsync(
+                    userEmail,
+                    "Update To Personnel Information Has Been Rejected",
+                    $"Update to personnel information has been rejected. <br><br> Reason: { remarks }");
 
-            //    return RedirectToAction(nameof(Verify));
-            //}
+                return RedirectToAction(nameof(Verify));
+            }
 
             return RedirectToAction(nameof(Verify));
         }
@@ -1276,70 +1343,101 @@ namespace BIA.Dashboard.Template.Controllers
             _context.PersonnelInformationAuditLog.Add(auditLog);
             await _context.SaveChangesAsync();
 
-            //var applicationUser = await userManager.FindByIdAsync(personnelInformationUser.ApplicationUserId);
-            //var userEmail = applicationUser.Email;
-            //if (userEmail != null)
-            //{
-            //    await _emailSender.SendEmailAsync(
-            //        userEmail,
-            //        "Update To Personnel Information Has Been Approved",
-            //        "Update to personnel information has been approved.");
-
-            //    return RedirectToAction(nameof(Verify));
-            //}
+            var applicationUser = await userManager.FindByIdAsync(personnelInformationUser.ApplicationUserId);
+            var userEmail = applicationUser.Email;
+            if (userEmail != null)
+            {
+                await _emailSender.SendEmailAsync(
+                    userEmail,
+                    "Update To Personnel Information Has Been Approved",
+                    "Update to personnel information has been approved.");
+            }
 
             return RedirectToAction(nameof(Verify));
         }
 
         // GET: PersonnelInformationsAuditLog
-        public async Task<IActionResult> AuditLog(string searchString, string currentFilter, int? pageNumber)
+        public IActionResult AuditLog()
         {
-            if (searchString != null)
+            
+            return View();
+        }
+
+
+
+        [HttpGet]
+        public async Task<IActionResult> GetAuditLogData()
+        {
+
+            var draw = int.Parse(HttpContext.Request.Query["draw"]);
+            var start = int.Parse(HttpContext.Request.Query["start"]);
+            var length = int.Parse(Request.Query["length"].ToString());
+            string sortColumnDirection = Request.Query["order[0][dir]"].ToString();
+            var searchValue = Request.Query["search[value]"].ToString();
+            searchValue = string.IsNullOrEmpty(searchValue) ? null : searchValue;
+            string columnNum = Request.Query["order[0][column]"].ToString();
+            string sortColumn = Request.Query["columns[" + columnNum + "][name]"].ToString();
+
+            var query = _context.PersonnelInformationAuditLog.Include(b => b.PersonnelInformation).Include(c => c.ApplicationUser)
+                .Where(s => searchValue == null|| s.Status.Contains(searchValue)
+                    || s.PersonnelInformation.Name.Contains(searchValue)
+                    || s.ApplicationUser.Email.Contains(searchValue)
+                    || s.FormattedStatusDate.Contains(searchValue)
+                );
+            var dataQuery = query.Select(x => new
             {
-                pageNumber = 1;
+                Status = x.Status,
+                Personnel = x.PersonnelInformation.Name,
+                UpdatedBy = x.ApplicationUser.Email,
+                FormattedStatusDate = x.FormattedStatusDate
+            });
+            if (sortColumnDirection=="desc")
+            {
+                switch (sortColumn)
+                {
+                    case "status":
+                        dataQuery=dataQuery.OrderByDescending(x => x.Status);
+                        break;
+                    case "personnel":
+                        dataQuery = dataQuery.OrderByDescending(x => x.Personnel);
+                        break;
+                    case "updatedBy":
+                        dataQuery = dataQuery.OrderByDescending(x => x.UpdatedBy);
+                        break;
+                    case "formattedStatusDate":
+                        dataQuery = dataQuery.OrderByDescending(x => x.FormattedStatusDate);
+                        break;
+                    default:
+                        dataQuery = dataQuery.OrderByDescending(x => x.Status);
+                        break;
+                }
             }
             else
             {
-                searchString = currentFilter;
+                switch (sortColumn)
+                {
+                    case "status":
+                        dataQuery = dataQuery.OrderBy(x => x.Status);
+                        break;
+                    case "personnel":
+                        dataQuery = dataQuery.OrderBy(x => x.Personnel);
+                        break;
+                    case "updatedBy":
+                        dataQuery = dataQuery.OrderBy(x => x.UpdatedBy);
+                        break;
+                    case "formattedStatusDate":
+                        dataQuery = dataQuery.OrderBy(x => x.FormattedStatusDate);
+                        break;
+                    default:
+                        dataQuery = dataQuery.OrderBy(x => x.Status);
+                        break;
+                }
             }
 
-            ViewData["CurrentFilter"] = searchString;
-
-            //var auditlogs = from s in _context.PersonnelInformationAuditLog
-            //                 select s;
-
-            if (String.IsNullOrEmpty(searchString))
-            {
-                var auditlog0 = _context.PersonnelInformationAuditLog.Include(b => b.PersonnelInformation).Include(c => c.ApplicationUser);
-
-                var auditlogs0 = from s in auditlog0
-                                select s;
-
-                var auditlogsdate0 = auditlogs0.OrderByDescending(s => s.StatusDate);
-
-                int pageSize0 = 10;
-                return View(await PaginatedList<PersonnelInformationAuditLog>.CreateAsync(auditlogsdate0, pageNumber ?? 1, pageSize0));
-            }
-
-            //auditlogs = auditlogs.Where(s => (s.Status.Contains(searchString)
-            //|| s.PersonnelInformation.Name.Contains(searchString)
-            //|| s.ApplicationUser.Email.Contains(searchString)
-            //|| s.FormattedStatusDate.Contains(searchString)
-            //)); 
-
-            var auditlog = _context.PersonnelInformationAuditLog.Include(b => b.PersonnelInformation).Include(c => c.ApplicationUser).Where(s => (s.Status.Contains(searchString)
-            || s.PersonnelInformation.Name.Contains(searchString)
-            || s.ApplicationUser.Email.Contains(searchString)
-            || s.FormattedStatusDate.Contains(searchString)
-            )); 
-
-            var auditlogs = from s in auditlog
-                            select s;
-
-            var auditlogsdate = auditlogs.OrderByDescending(s => s.StatusDate);
-
-            int pageSize = 10;
-            return View(await PaginatedList<PersonnelInformationAuditLog>.CreateAsync(auditlogsdate, pageNumber ?? 1, pageSize));
+            var totalRecords = dataQuery.Count();
+            var data = await dataQuery.Skip(start).Take(length).ToListAsync();
+          
+            return Json(new { draw = draw, recordsFiltered = data.Count, recordsTotal = totalRecords, data = data });
         }
     }
 }
