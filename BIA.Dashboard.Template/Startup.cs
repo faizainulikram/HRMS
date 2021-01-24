@@ -155,8 +155,7 @@ namespace BIA.Dashboard.Template
                     new RouteTokenTransformerConvention(
                         new SlugifyParameterTransformer()));
 
-                // Enable Antiforgery feature by default on all controller actions
-                options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
+                
             });
 
             services.AddRazorPages(options =>

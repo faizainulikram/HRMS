@@ -16,6 +16,7 @@ using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
+using BIA.Dashboard.Template.DTOS;
 
 namespace BIA.Dashboard.Template.Controllers
 {
@@ -38,27 +39,53 @@ namespace BIA.Dashboard.Template.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Index(string searchString, string currentFilter, int? pageNumber)
+        public IActionResult Index()
         {
-            if (searchString != null)
-            {
-                pageNumber = 1;
-            }
-            else
-            {
-                searchString = currentFilter;
-            }
-
-            ViewData["CurrentFilter"] = searchString;
-            var users = userManager.Users;
-
-            if (!String.IsNullOrEmpty(searchString))
-            {
-                users = users.Where(s => (s.Email.Contains(searchString)));
-            }
-            int pageSize = 10;
-            return View(await PaginatedList<ApplicationUser>.CreateAsync(users.AsNoTracking(), pageNumber ?? 1, pageSize));
+           
+            return View();
         }
+
+
+        [HttpPost, HttpGet]
+
+        public async Task<IActionResult> GetUsersData()
+        {
+            var users = userManager.Users;
+            var draw = int.Parse(HttpContext.Request.Query["draw"]);
+            var start = int.Parse(HttpContext.Request.Query["start"]);
+            var length = int.Parse(Request.Query["length"].ToString());
+            string sortColumnDirection = Request.Query["order[0][dir]"].ToString();
+            var searchValue = Request.Query["search[value]"].ToString();
+            searchValue = string.IsNullOrEmpty(searchValue) ? null : searchValue;
+
+          
+            var query = users.Where(x => searchValue == null || x.Email.Contains(searchValue)).Select(x => new UsersGridDataDto
+            {
+                User = x.Email,
+                Username = x.UserName,
+                Status = x.IsEnabled == false ? "<span class='badge badge-danger'>Disabled</span>" : "<span class='badge badge-success'>Enabled</span>",
+                IsEnabled = x.IsEnabled,
+                Id = x.Id
+
+            });
+            var totalRecords = query.Count();
+            query = sortColumnDirection == "desc" ? query.OrderByDescending(x => x.User): query.OrderBy(x => x.User);
+            var data =await query.Skip(start).Take(length).ToListAsync();
+            foreach (var item in data)
+            {
+                if (User.Identity.Name != item.Username)
+                {
+                    item.Action += @"<form method='post' class='inlineElement' action='/UserAccess/ChangeUserStatus/"+ item.Id + @"?isenable="+(item.IsEnabled == false ? 0 : 1) +@"'    >
+                                                  <button class='btn btn-sm "+(item.IsEnabled == false ?"btn-success" : "btn-danger") +@"' type='submit'>"+(item.IsEnabled == false ? "Enable User" : "Disable User") +@"</button>
+                                        </form> <span>|</span>";
+                }
+
+                item.Action += @"<a href='/UserAccess/ManageUserClaims/" + item.Id + "'  class='btn btn-sm btn-secondary'>Manage Claims</a>";
+            }
+            return Json(new { draw = draw, recordsFiltered = data.Count, recordsTotal = totalRecords, data = data });
+        }
+
+
 
         // GET: UserAccess/AddNewUser
         [HttpGet]
@@ -180,6 +207,7 @@ namespace BIA.Dashboard.Template.Controllers
         /// <param name="id"></param>
         /// <param name="isenable"></param>
         /// <returns></returns>
+
         [HttpPost]
         public async Task<ActionResult> ChangeUserStatus(string id, int isenable)
         {
