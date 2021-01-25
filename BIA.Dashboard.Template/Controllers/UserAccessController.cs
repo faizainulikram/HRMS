@@ -82,7 +82,7 @@ namespace BIA.Dashboard.Template.Controllers
 
                 item.Action += @"<a href='/UserAccess/ManageUserClaims/" + item.Id + "'  class='btn btn-sm btn-secondary'>Manage Claims</a>";
             }
-            return Json(new { draw = draw, recordsFiltered = data.Count, recordsTotal = totalRecords, data = data });
+            return Json(new { draw = draw, recordsFiltered = totalRecords, recordsTotal = totalRecords, data = data });
         }
 
 

@@ -130,7 +130,7 @@ namespace BIA.Dashboard.Template.Controllers
                 }
 
             }
-            return Json(new { draw = draw, recordsFiltered = data.Count, recordsTotal = totalRecords, data = data });
+            return Json(new { draw = draw, recordsFiltered = totalRecords, recordsTotal = totalRecords, data = data });
         }
 
 
@@ -1437,7 +1437,7 @@ namespace BIA.Dashboard.Template.Controllers
             var totalRecords = dataQuery.Count();
             var data = await dataQuery.Skip(start).Take(length).ToListAsync();
           
-            return Json(new { draw = draw, recordsFiltered = data.Count, recordsTotal = totalRecords, data = data });
+            return Json(new { draw = draw, recordsFiltered = totalRecords, recordsTotal = totalRecords, data = data });
         }
     }
 }
