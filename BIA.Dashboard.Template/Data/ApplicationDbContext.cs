@@ -30,7 +30,10 @@ namespace BIA.Dashboard.Template.Data
         public DbSet<FileOnDatabaseModel> FilesOnDatabase { get; set; }
         public DbSet<FileOnFileSystemModel> FilesOnFileSystem { get; set; }
         public DbSet<PersonnelInformationAuditLog> PersonnelInformationAuditLog { get; set; }
-        public DbSet<PayrollAdvice> PayrollAdvice { get; set; }
+        public DbSet<BankAccountPayrollAdvice> BankAccountAdvices { get; set; }
+        public DbSet<SalaryPayrollAdvice> SalaryPayrollAdvices { get; set; }
+        public DbSet<EarningPayrollAdvice> EarningPayrollAdvices { get; set; }
+        public DbSet<DeductionPayrollAdvice> DeductionPayrollAdvices { get; set; }
         public DbSet<PayrollLedger> PayrollLedger { get; set; }
         public DbSet<PayrollBankBranch> PayrollBankBranch { get; set; }
 
@@ -50,7 +53,7 @@ namespace BIA.Dashboard.Template.Data
             modelBuilder.Entity<FileOnDatabaseModel>().ToTable("FileOnDatabaseModel");
             modelBuilder.Entity<FileOnFileSystemModel>().ToTable("FileOnFileSystemModel");
             modelBuilder.Entity<PersonnelInformationAuditLog>().ToTable("PersonnelInformationAuditLog");
-            modelBuilder.Entity<PayrollAdvice>().ToTable("PayrollAdvice");
+            modelBuilder.Entity<BankAccountPayrollAdvice>().ToTable("BankAccountPayrollAdvice");
             modelBuilder.Entity<PayrollLedger>().ToTable("PayrollLedger");
             modelBuilder.Entity<PayrollBankBranch>().ToTable("PayrollBankBranch");
 

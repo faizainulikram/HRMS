@@ -38,52 +38,24 @@ namespace BIA.Dashboard.Template.Controllers
 
         private void PopulateUserDropdownList(object selectedUser = null)
         {
-            if (selectedUser == null)
-            {
-                var personnelQuery = from s in _context.PersonnelInformation
-                                     select new
-                                     {
-                                         Id = s.PersonnelId,
-                                         NameIc = s.Name + " (" + s.IdentityCardNumber + ")"
-                                     };
-                ViewBag.PersonnelId = new SelectList(personnelQuery.AsNoTracking(), "Id", "NameIc", selectedUser);
-            }
-
-            if (selectedUser != null)
-            {
-                var personnelQuery = from s in _context.PersonnelInformation
-                                     select new
-                                     {
-                                         Id = s.PersonnelId,
-                                         NameIc = s.Name + " (" + s.IdentityCardNumber + ")"
-                                     };
-                ViewBag.PersonnelId = new SelectList(personnelQuery.AsNoTracking(), "Id", "NameIc", selectedUser);
-            }
+            var personnelQuery = from s in _context.PersonnelInformation
+                                 select new
+                                 {
+                                     Id = s.PersonnelId,
+                                     NameIc = s.Name + " (" + s.IdentityCardNumber + ")"
+                                 };
+            ViewBag.PersonnelId = new SelectList(personnelQuery.AsNoTracking(), "Id", "NameIc", selectedUser);
         }
 
         private void PopulateLedgerDropdownList(object selectedLedger = null)
         {
-            if (selectedLedger == null)
-            {
-                var ledgerQuery = from s in _context.PayrollLedger
-                                  select new
-                                  {
-                                      Id = s.PayrollLedgerId,
-                                      CodeName = s.LedgerCode + " (" + s.Name + ")"
-                                  };
-                ViewBag.PayrollId = new SelectList(ledgerQuery.AsNoTracking(), "Id", "CodeName", selectedLedger);
-            }
-
-            if (selectedLedger != null)
-            {
-                var ledgerQuery = from s in _context.PayrollLedger
-                                  select new
-                                  {
-                                      Id = s.PayrollLedgerId,
-                                      CodeName = s.LedgerCode + " (" + s.Name + ")"
-                                  };
-                ViewBag.PayrollId = new SelectList(ledgerQuery.AsNoTracking(), "Id", "CodeName", selectedLedger);
-            }
+            var ledgerQuery = from s in _context.PayrollLedger
+                              select new
+                              {
+                                  Id = s.PayrollLedgerId,
+                                  CodeName = s.LedgerCode + " (" + s.Name + ")"
+                              };
+            ViewBag.PayrollId = new SelectList(ledgerQuery.AsNoTracking(), "Id", "CodeName", selectedLedger);
         }
 
         [HttpGet]
@@ -116,13 +88,11 @@ namespace BIA.Dashboard.Template.Controllers
 
             ViewData["CurrentFilter"] = searchString;
 
-            var earnings = from s in _context.PayrollAdvice
-                            where s.DDEA == PayrollAdvice.DDEAList.Earning
-                            select s;
+            var deductions = _context.EarningPayrollAdvices.Include(x => x.PersonnelInformation).AsQueryable();
 
             if (!String.IsNullOrEmpty(searchString))
             {
-                earnings = earnings.Where(s => (s.AdviceNumber.Contains(searchString)
+                deductions = deductions.Where(s => (s.AdviceNumber.Contains(searchString)
                 || s.ICNumber.Contains(searchString)
                 || s.Remarks.Contains(searchString)
                 || s.Ledger.Name.Contains(searchString)
@@ -130,7 +100,7 @@ namespace BIA.Dashboard.Template.Controllers
             }
 
             int pageSize = 10;
-            return View(await PaginatedList<PayrollAdvice>.CreateAsync(earnings.AsNoTracking(), pageNumber ?? 1, pageSize));
+            return View(await PaginatedList<EarningPayrollAdvice>.CreateAsync(deductions.AsNoTracking(), pageNumber ?? 1, pageSize));
         }
 
         // GET: DeductionAdvice
@@ -147,9 +117,7 @@ namespace BIA.Dashboard.Template.Controllers
 
             ViewData["CurrentFilter"] = searchString;
 
-            var deductions = from s in _context.PayrollAdvice
-                           where s.DDEA == PayrollAdvice.DDEAList.Deduction
-                           select s;
+            var deductions = _context.DeductionPayrollAdvices.Include(x => x.PersonnelInformation).AsQueryable();
 
             if (!String.IsNullOrEmpty(searchString))
             {
@@ -161,7 +129,7 @@ namespace BIA.Dashboard.Template.Controllers
             }
 
             int pageSize = 10;
-            return View(await PaginatedList<PayrollAdvice>.CreateAsync(deductions.AsNoTracking(), pageNumber ?? 1, pageSize));
+            return View(await PaginatedList<DeductionPayrollAdvice>.CreateAsync(deductions.AsNoTracking(), pageNumber ?? 1, pageSize));
         }
 
         // GET: BankAdvice
@@ -178,10 +146,7 @@ namespace BIA.Dashboard.Template.Controllers
 
             ViewData["CurrentFilter"] = searchString;
 
-            var bankaccounts = from s in _context.PayrollAdvice
-                           where s.DDEA == PayrollAdvice.DDEAList.BankDetail
-                           select s;
-
+            var bankaccounts = _context.BankAccountAdvices.Include(x => x.PersonnelInformation).AsQueryable();
             if (!String.IsNullOrEmpty(searchString))
             {
                 bankaccounts = bankaccounts.Where(s => (s.AdviceNumber.Contains(searchString)
@@ -196,7 +161,7 @@ namespace BIA.Dashboard.Template.Controllers
             }
 
             int pageSize = 10;
-            return View(await PaginatedList<PayrollAdvice>.CreateAsync(bankaccounts.AsNoTracking(), pageNumber ?? 1, pageSize));
+            return View(await PaginatedList<BankAccountPayrollAdvice>.CreateAsync(bankaccounts.AsNoTracking(), pageNumber ?? 1, pageSize));
         }
 
         // GET: AddPayrollAdvice
@@ -204,16 +169,62 @@ namespace BIA.Dashboard.Template.Controllers
         {
             PopulateUserDropdownList();
             PopulateLedgerDropdownList();
+            BankAndBankBranchDropdowns(string.Empty, string.Empty);
             return PartialView("_AddBankAccountAdvice");
         }
+        private void BankAndBankBranchDropdowns(string bank,string branch)
+        {
+            var _data= _context.PayrollBankBranch.ToList();
+            ViewBag.banks = new SelectList(_data, "Bank", "BankName",bank);
+            ViewBag.branches = new SelectList(_data, "Branch", "BranchName", branch);
 
-        [HttpPost]  
+
+        }
+        public IActionResult AddDeductionAdvice()
+        {
+            PopulateUserDropdownList();
+            PopulateLedgerDropdownList();
+            return PartialView("_AddDeductionAdvice");
+        }
+        public IActionResult AddEarningAdvice()
+        {
+            PopulateUserDropdownList();
+            PopulateLedgerDropdownList();
+            return PartialView("_AddEarningAdvice");
+        }
+        [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AddBankAccountAdvice(PayrollAdvice payrollAdvice)
+        public async Task<IActionResult> AddDeductionAdvice(DeductionPayrollAdvice payrollAdvice)
         {
             if (ModelState.IsValid)
             {
-                _context.PayrollAdvice.Add(payrollAdvice);
+                _context.DeductionPayrollAdvices.Add(payrollAdvice);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(DeductionAdvice));
+            }
+
+            return PartialView("_AddDeductionAdvice", payrollAdvice);
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddEarningAdvice(EarningPayrollAdvice payrollAdvice)
+        {
+            if (ModelState.IsValid)
+            {
+                _context.EarningPayrollAdvices.Add(payrollAdvice);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(EarningAdvice));
+            }
+
+            return PartialView("_AddEarningAdvice", payrollAdvice);
+        }
+        [HttpPost]  
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddBankAccountAdvice(BankAccountPayrollAdvice payrollAdvice)
+        {
+            if (ModelState.IsValid)
+            {
+                _context.BankAccountAdvices.Add(payrollAdvice);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(BankAccountAdvice));
             }
@@ -224,7 +235,7 @@ namespace BIA.Dashboard.Template.Controllers
         // GET: AddPayrollAdvice
         public async Task<IActionResult> EditBankAccountAdvice(int id)
         {
-            var payrollAdvice = await _context.PayrollAdvice
+            var payrollAdvice = await _context.BankAccountAdvices
                 .FirstOrDefaultAsync(m => m.PayrollAdviceId == id);
 
             var personnelInformation = await _context.PersonnelInformation
@@ -235,12 +246,81 @@ namespace BIA.Dashboard.Template.Controllers
 
             PopulateUserDropdownList(personnelInformation);
             PopulateLedgerDropdownList(payrollLedger);
+            BankAndBankBranchDropdowns(payrollAdvice?.BankCode,payrollAdvice?.BranchCode);
             return PartialView("_EditBankAccountAdvice", payrollAdvice);
         }
+        public async Task<IActionResult> EditDeductionAdvice(int id)
+        {
+            var payrollAdvice = await _context.DeductionPayrollAdvices
+                .FirstOrDefaultAsync(m => m.PayrollAdviceId == id);
 
+            var personnelInformation = await _context.PersonnelInformation
+                .FirstOrDefaultAsync(m => m.PersonnelId == payrollAdvice.PersonnelInformationId);
+
+            var payrollLedger = await _context.PayrollLedger
+                .FirstOrDefaultAsync(m => m.PayrollLedgerId == payrollAdvice.PayrollLedgerId);
+
+            PopulateUserDropdownList(personnelInformation);
+            PopulateLedgerDropdownList(payrollLedger);
+            return PartialView("_EditDeductionAdvice", payrollAdvice);
+        }
+        public async Task<IActionResult> EditEarningAdvice(int id)
+        {
+            var payrollAdvice = await _context.EarningPayrollAdvices
+                .FirstOrDefaultAsync(m => m.PayrollAdviceId == id);
+
+            var personnelInformation = await _context.PersonnelInformation
+                .FirstOrDefaultAsync(m => m.PersonnelId == payrollAdvice.PersonnelInformationId);
+
+            var payrollLedger = await _context.PayrollLedger
+                .FirstOrDefaultAsync(m => m.PayrollLedgerId == payrollAdvice.PayrollLedgerId);
+
+            PopulateUserDropdownList(personnelInformation);
+            PopulateLedgerDropdownList(payrollLedger);
+            return PartialView("_EditEarningAdvice", payrollAdvice);
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditBankAccountAdvice(BankAccountPayrollAdvice payrollAdvice)
+        {
+            if (ModelState.IsValid)
+            {
+                _context.Entry(payrollAdvice).State=EntityState.Modified;
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(BankAccountAdvice));
+            }
+
+            return PartialView("_AddBankAccountAdvice", payrollAdvice);
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditDeductionAdvice(DeductionPayrollAdvice payrollAdvice)
+        {
+            if (ModelState.IsValid)
+            {
+                _context.Entry(payrollAdvice).State = EntityState.Modified;
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(DeductionAdvice));
+            }
+
+            return PartialView("_EditDeductionAdvice", payrollAdvice);
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditEarningAdvice(EarningPayrollAdvice payrollAdvice)
+        {
+            if (ModelState.IsValid)
+            {
+                _context.Entry(payrollAdvice).State = EntityState.Modified;
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(EarningAdvice));
+            }
+
+            return PartialView("_EditEarningAdvice", payrollAdvice);
+        }
         public async Task<IActionResult> CancelAdviceReplacement(int id)
         {
-            var payrollAdvice = await _context.PayrollAdvice
+            var payrollAdvice = await _context.BankAccountAdvices
                 .FirstOrDefaultAsync(m => m.PayrollAdviceId == id);
 
             var personnelInformation = await _context.PersonnelInformation
@@ -262,7 +342,7 @@ namespace BIA.Dashboard.Template.Controllers
             PopulateUserDropdownList(personnelInformation);
             PopulateLedgerDropdownList(payrollLedger);
 
-            var newPayrollAdvice = new PayrollAdvice();
+            var newPayrollAdvice = new BankAccountPayrollAdvice();
 
             newPayrollAdvice.PersonnelInformation = payrollAdvice.PersonnelInformation;
             newPayrollAdvice.PersonnelInformationId = payrollAdvice.PersonnelInformationId;
@@ -271,10 +351,6 @@ namespace BIA.Dashboard.Template.Controllers
             newPayrollAdvice.Remarks = payrollAdvice.Remarks;
             newPayrollAdvice.PayrollLedgerId = payrollAdvice.PayrollLedgerId;
             newPayrollAdvice.Ledger = payrollAdvice.Ledger;
-            newPayrollAdvice.Earning = payrollAdvice.Earning;
-            newPayrollAdvice.Deduction = payrollAdvice.Deduction;
-            newPayrollAdvice.DDEA = payrollAdvice.DDEA;
-
             return PartialView("_AddBankAccountAdvice", newPayrollAdvice);
         }
 
@@ -282,7 +358,7 @@ namespace BIA.Dashboard.Template.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CancelAdviceNoReplacement(int id)
         {
-            var payrollAdvice = await _context.PayrollAdvice
+            var payrollAdvice = await _context.BankAccountAdvices
                 .FirstOrDefaultAsync(m => m.PayrollAdviceId == id);
 
 
@@ -298,10 +374,124 @@ namespace BIA.Dashboard.Template.Controllers
             return RedirectToAction(nameof(BankAccountAdvice));
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CancelDeductionAdviceNoReplacement(int id)
+        {
+            var payrollAdvice = await _context.DeductionPayrollAdvices
+                .FirstOrDefaultAsync(m => m.PayrollAdviceId == id);
+
+
+            if (payrollAdvice == null)
+            {
+                return NotFound();
+            }
+
+            payrollAdvice.Status = "C";
+            payrollAdvice.StatusDate = DateTime.Now;
+
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(DeductionAdvice));
+        }
+
+        public async Task<IActionResult> CancelDeductionAdviceReplacement(int id)
+        {
+            var payrollAdvice = await _context.DeductionPayrollAdvices
+                .FirstOrDefaultAsync(m => m.PayrollAdviceId == id);
+
+            var personnelInformation = await _context.PersonnelInformation
+                .FirstOrDefaultAsync(m => m.PersonnelId == payrollAdvice.PersonnelInformationId);
+
+            var payrollLedger = await _context.PayrollLedger
+                .FirstOrDefaultAsync(m => m.PayrollLedgerId == payrollAdvice.PayrollLedgerId);
+
+            if (payrollAdvice == null)
+            {
+                return NotFound();
+            }
+
+            payrollAdvice.Status = "C";
+            payrollAdvice.StatusDate = DateTime.Now;
+
+            await _context.SaveChangesAsync();
+
+            PopulateUserDropdownList(personnelInformation);
+            PopulateLedgerDropdownList(payrollLedger);
+
+            var newPayrollAdvice = new DeductionPayrollAdvice();
+
+            newPayrollAdvice.PersonnelInformation = payrollAdvice.PersonnelInformation;
+            newPayrollAdvice.PersonnelInformationId = payrollAdvice.PersonnelInformationId;
+            newPayrollAdvice.AdviceNumber = payrollAdvice.AdviceNumber;
+            newPayrollAdvice.ICNumber = payrollAdvice.ICNumber;
+            newPayrollAdvice.Remarks = payrollAdvice.Remarks;
+            newPayrollAdvice.PayrollLedgerId = payrollAdvice.PayrollLedgerId;
+            newPayrollAdvice.Ledger = payrollAdvice.Ledger;
+            newPayrollAdvice.Deduction = payrollAdvice.Deduction;
+            return PartialView("_AddDeductionAdvice", newPayrollAdvice);
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CancelEarningAdviceNoReplacement(int id)
+        {
+            var payrollAdvice = await _context.EarningPayrollAdvices
+                .FirstOrDefaultAsync(m => m.PayrollAdviceId == id);
+
+
+            if (payrollAdvice == null)
+            {
+                return NotFound();
+            }
+
+            payrollAdvice.Status = "C";
+            payrollAdvice.StatusDate = DateTime.Now;
+
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(EarningAdvice));
+        }
+
+        public async Task<IActionResult> CancelEarningAdviceReplacement(int id)
+        {
+            var payrollAdvice = await _context.EarningPayrollAdvices
+                .FirstOrDefaultAsync(m => m.PayrollAdviceId == id);
+
+            var personnelInformation = await _context.PersonnelInformation
+                .FirstOrDefaultAsync(m => m.PersonnelId == payrollAdvice.PersonnelInformationId);
+
+            var payrollLedger = await _context.PayrollLedger
+                .FirstOrDefaultAsync(m => m.PayrollLedgerId == payrollAdvice.PayrollLedgerId);
+
+            if (payrollAdvice == null)
+            {
+                return NotFound();
+            }
+
+            payrollAdvice.Status = "C";
+            payrollAdvice.StatusDate = DateTime.Now;
+
+            await _context.SaveChangesAsync();
+
+            PopulateUserDropdownList(personnelInformation);
+            PopulateLedgerDropdownList(payrollLedger);
+
+            var newPayrollAdvice = new EarningPayrollAdvice();
+
+            newPayrollAdvice.PersonnelInformation = payrollAdvice.PersonnelInformation;
+            newPayrollAdvice.PersonnelInformationId = payrollAdvice.PersonnelInformationId;
+            newPayrollAdvice.AdviceNumber = payrollAdvice.AdviceNumber;
+            newPayrollAdvice.ICNumber = payrollAdvice.ICNumber;
+            newPayrollAdvice.Remarks = payrollAdvice.Remarks;
+            newPayrollAdvice.PayrollLedgerId = payrollAdvice.PayrollLedgerId;
+            newPayrollAdvice.Ledger = payrollAdvice.Ledger;
+            newPayrollAdvice.Earning = payrollAdvice.Earning;
+            return PartialView("_AddEarningAdvice", newPayrollAdvice);
+        }
+
+
         [HttpGet]
         public async Task<JsonResult> GetPayrollAdvice(int id)
         {
-            var payrollAdvice = await _context.PayrollAdvice
+            var payrollAdvice = await _context.BankAccountAdvices
                 .FirstOrDefaultAsync(m => m.PayrollAdviceId == id);
 
             return Json(payrollAdvice);
@@ -309,7 +499,7 @@ namespace BIA.Dashboard.Template.Controllers
 
         private bool PayrollAdviceExists(int id)
         {
-            return _context.PayrollAdvice.Any(e => e.PayrollAdviceId == id);
+            return _context.BankAccountAdvices.Any(e => e.PayrollAdviceId == id);
         }
 
         // GET: PayrollLedger

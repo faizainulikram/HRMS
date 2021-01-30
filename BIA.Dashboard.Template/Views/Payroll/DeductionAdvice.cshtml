@@ -2,7 +2,7 @@
 @inject IAuthorizationService AuthorizationService
 @using Microsoft.AspNetCore.Identity
 @inject UserManager<ApplicationUser> userManager
-@model PaginatedList<BIA.Dashboard.Template.Models.PayrollAdvice>
+@model PaginatedList<BIA.Dashboard.Template.Models.DeductionPayrollAdvice>
 
 @{
     ViewData["Title"] = "Bank Account Advice";
@@ -26,7 +26,8 @@
         <div class="navbar-nav nav-fill w-100">
             <ul class="navbar-nav nav-fill w-100">
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                       data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         Posting/Enquiry
                     </a>
                     <div class="dropdown-menu nav-fill w-100" aria-labelledby="navbarDropdown">
@@ -90,20 +91,23 @@
             @*<a asp-area="Identity" asp-page="/Account/Register" class="btn btn-success btn-md" style="width:auto">
                     Add New User
                 </a>*@
-            <a href="#" onclick="ConfirmAdd()" class="btn btn-success btn-md" style="width:auto">Add New Deduction Advice</a>
+            <a href="#" id="addNewDeductionAdvice" class="btn btn-success btn-md" style="width:auto">Add New Deduction Advice</a>
         </div>
         @*<button class="btn btn-success btn-md" onclick="window.location='@Url.Action("Create", "PersonnelInformations")'">Add</button>*@
         <div class="table-responsive">
             <table class="table align-items-center table-flush">
                 <thead class="thead-flush">
                     <tr>
-                        <th scope="col" width="15%">No</th>
+                        <th scope="col" width="15%">Advice Number</th>
                         <th scope="col" width="15%">Date</th>
                         <th scope="col" width="15%">IC Number</th>
                         <th scope="col" width="15%">Name</th>
                         <th scope="col" width="15%">Remarks</th>
-                        <th scope="col" width="15%">Amount</th>
+                        <th scope="col" width="15%">Status</th>
+                        <th>Deduction</th>
                         <th></th>
+
+
                     </tr>
                 </thead>
                 <tbody>
@@ -113,12 +117,20 @@
                             <td>@Html.DisplayFor(modelItem => item.AdviceNumber)</td>
                             <td>@Html.DisplayFor(modelItem => item.Date)</td>
                             <td>@Html.DisplayFor(modelItem => item.ICNumber)</td>
-                            <td>@Html.DisplayFor(modelItem => item.ICNumber)</td>
-                            <td>@Html.DisplayFor(modelItem => item.ICNumber)</td>
+                            <td>@Html.DisplayFor(modelItem => item.PersonnelInformation.Name)</td>
                             <td>@Html.DisplayFor(modelItem => item.Remarks)</td>
+                            <td>
+                                @if (item.Status == "C")
+                                {
+                                    <span class="badge badge-danger">Cancelled</span>
+                                }
+                            </td>
+
+                            <td>@item.Deduction</td>
                             <td>
                                 @*<a asp-action="EditUserDetails" asp-route-id="@item.Id" class="btn btn-sm btn-secondary">Edit Details</a>*@
                                 <a href="#" onclick="ConfirmEdit(@item.PayrollAdviceId)" class="btn btn-sm btn-secondary">Edit</a>
+                                <a href="#" onclick="ConfirmCancel(@item.PayrollAdviceId)" class="btn btn-sm btn-warning">Cancel</a>
                             </td>
                         </tr>
                     }
@@ -150,70 +162,50 @@
         </div>
     </div>
 </div>
-<div class="modal fade" id="addModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl">
-        <div class="modal-content modal-xl" style="width: 150%">
+<div id="viewDiv">
+</div>
+<div id="addDiv">
+</div>
+<div id="editDiv">
+</div>
+<div id="cancelDiv">
+</div>
+<div class="modal fade" id="cancelModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
             <div class="modal-header">
-                <h3 class="modal-title" id="myModalLabel" style="align-content: center">Add Bank Account Advice</h3>
+                <h3 class="modal-title" id="myModalLabel">Cancel Record</h3>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
-                <div class="row">
-                    <div class="col">
-                        <form asp-action="AddPayrollAdvice" id="addPayrollAdvice" enctype="multipart/form-data" method="post" role="form">
-                            <div class="row form-group m-1">
-                                <div class="col-md-6">
-                                    <p class="mt-0 mb-0"><label class="control-label"></label></p>
-                                    <input type="text" class="form-control" id="Add" name="add" />
-                                </div>
-                                <div class="col-md-6">
-                                    <p class="mt-0 mb-0"><label class="control-label"></label></p>
-                                    <input type="text" class="form-control" id="Add" name="add" />
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                </div>
+                <h4>Cancel record, are you sure?</h4>
+
             </div>
             <div class="modal-footer">
-                <a href="#" class="btn btn-warning" data-dismiss="modal">Cancel</a>
-                <a href="#" class="btn btn-default" onclick="AddAdvice()">Confirm</a>
+                <a href="#" class="btn btn-default" data-dismiss="modal">No</a>
+                <a href="#" class="btn btn-warning" onclick="ReplacementRecord()">Yes</a>
             </div>
         </div>
     </div>
 </div>
-<div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl">
-        <div class="modal-content modal-xl">
+<div class="modal fade" id="replacementModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
             <div class="modal-header">
-                <h3 class="modal-title" id="myModalLabel">Edit Bank Account Advice</h3>
+                <h3 class="modal-title" id="myModalLabel">Replacement</h3>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
-                <div class="row">
-                    <div class="col">
-                        <form asp-action="EditPayrollAdvice" id="edit" enctype="multipart/form-data" method="post" role="form">
-                            <div class="row form-group m-1">
-                                <div class="col-md-6">
-                                    <p class="mt-0 mb-0"><label class="control-label"></label></p>
-                                    <input type="text" class="form-control" id="Edit" name="edit" />
-                                </div>
-                                <div class="col-md-6">
-                                    <p class="mt-0 mb-0"><label class="control-label">Account Name</label></p>
-                                    <input type="text" class="form-control" id="Edit" name="edit" />
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                </div>
+                <h4>Replacement?</h4>
+
             </div>
             <div class="modal-footer">
-                <a href="#" class="btn btn-warning" data-dismiss="modal">Cancel</a>
-                <a href="#" class="btn btn-default" onclick="EditAdvice()">Confirm</a>
+                <a href="#" class="btn btn-default" data-dismiss="modal" onclick="CancelAdviceNoReplacement()">No</a>
+                <a href="#" class="btn btn-warning" onclick="CancelAdviceReplacement()">Yes</a>
             </div>
         </div>
     </div>
@@ -229,84 +221,107 @@
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
     <script type="text/javascript">
 
-        var ConfirmAdd = function () {
-            //$("#hiddenLedgerId").val(PersonnelId);
-            $("#addModal").modal('show');
+        $(document).ready(function () {
+            $("#PersonnelInformationId").chosen();
+        });
+
+        $(document).ajaxComplete(function () {
+            $("#PersonnelInformationId").chosen();
+        });
+
+        var ConfirmCancel = function (PayrollAdviceId) {
+            $("#hiddenAdviceId").val(PayrollAdviceId);
+            $("#cancelModal").modal('show');
         }
+
+        var ReplacementRecord = function () {
+            $("#cancelModal").modal('hide');
+            $("#replacementModal").modal('show');
+        }
+
+        $('#addNewDeductionAdvice').click(function () {
+            var addUrl = '@Url.Action("AddDeductionAdvice", "Payroll")';
+            $('#addDiv').load(addUrl, function () {
+                $("#addModal").modal('toggle');
+                $.validator.unobtrusive.parse("#addDeductionnAdvice");
+                var d = new Date();
+                startDate = d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-01';
+                document.getElementById("TransactionStartDate").value = startDate;
+            });
+        });
 
         var ConfirmEdit = function (PayrollAdviceId) {
-            $("#hiddenAdviceId").val(PayrollAdviceId);
-
-            $.ajax({
-                type: 'GET',
-                url: '/Payroll/GetPayrollAdvice/' + PayrollAdviceId,
-                dataType: 'JSON',
-                contentType: "application/json",
-                success: function (payrollAdvice) {
-                    $("#editModal").modal('show');
-                    $('#editPayrollAdvice input[name="edit"]').val(payrollAdvice.);
-                    $('#editPayrollAdvice input[name="edit"]').val(payrollAdvice.);
-                }
-            })
+            var editUrl = '/Payroll/EditDeductionAdvice/' + PayrollAdviceId;
+            $('#editDiv').load(editUrl, function () {
+                $("#editModal").modal('toggle');
+                $.validator.unobtrusive.parse("#editDeductionAdviceForm");
+            });
         }
 
-        var AddAdvice = function () {
-            //var ledgerId = $("#hiddenLedgerId").val();
-            var = $('#Add').val();
-            var = $('#Add').val();
-            //alert(personnelId)
+        function getIcNumber() {
+            //alert(id.value);
+            let personalInfoId = $("#PersonnelInformationId").val();
+            if (Number(personalInfoId) > 0) {
+                $.ajax({
+                    url: "/Payroll/GetIcNumber",
+                    //data: { "id": id.value },
+                    type: "GET",
+                    dataType: "Json",
+                    data: { id: personalInfoId },
+                    contentType: "application/json",
+                    success: function (icNumber) {
+                        document.getElementById("ICNumber").value = (icNumber);
+                    },
+                });
+            }
+            else {
+                document.getElementById("ICNumber").value = '';
+            }
+
+        }
+
+        var CancelAdviceNoReplacement = function () {
+            var payrollId = document.getElementById('hiddenAdviceId').value;
             $.ajax({
                 beforeSend: function (request) {
-                    $("#addModal").modal("hide");
                     $("#spinnerModal").modal("show");
                     request.setRequestHeader("RequestVerificationToken", $("[name='__RequestVerificationToken']").val());
                 },
                 type: 'POST',
-                url: '/Payroll/AddPayrollLedger',
+                url: '/Payroll/CancelDeductionAdviceNoReplacement',
                 data: {
-                    Date: ,
-                    ICNumber: ,
-                    Remarks: ,
-                    Earning: ,
-                    TransactionStartDate: ,
-                    TransactionEndDate: ,
-                    Ledger: ,
-                    Status: ,
-                    StatusDate: ,
-                    DDEA: ,
+                    id: payrollId
                 },
                 success: function () {
                     $("#spinnerModal").modal("hide");
+                    window.location = '@Url.Action("DeductionAdvice")';
                 }
             })
         }
 
-        var EditAdvice = function () {
-            var adviceId = $("#hiddenAdviceId").val();
-            var = $('#Edit').val();
-            var = $('#Edit').val();
+        var CancelAdviceReplacement = function () {
+            var payrollId = document.getElementById('hiddenAdviceId').value;
             $.ajax({
                 beforeSend: function (request) {
-                    $("#editModal").modal("hide");
-                    $("#spinnerModal").modal("show");
+                    //$("#spinnerModal").modal("show");
                     request.setRequestHeader("RequestVerificationToken", $("[name='__RequestVerificationToken']").val());
                 },
                 type: 'POST',
-                url: '/Payroll/EditPayrollAdvice',
+                url: '/Payroll/CancelDeductionAdviceNoReplacement',
                 data: {
-                    Date: ,
-                    ICNumber: ,
-                    Remarks: ,
-                    Earning: ,
-                    TransactionStartDate: ,
-                    TransactionEndDate: ,
-                    Ledger: ,
-                    Status: ,
-                    StatusDate: ,
-                    DDEA: ,
+                    id: payrollId
                 },
                 success: function () {
-                    $("#spinnerModal").modal("hide");
+                    $("#replacementModal").modal('hide');
+                    var loadUrl = '/Payroll/CancelDeductionAdviceReplacement/' + payrollId;
+                    $('#addDiv').load(loadUrl, function () {
+                        $("#addModal").modal('toggle');
+                        $.validator.unobtrusive.parse("#addDeductionnAdvice");
+                        var d = new Date();
+                        startDate = d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-01';
+                        document.getElementById("TransactionStartDate").value = startDate;
+                    });
+                    //$("#spinnerModal").modal("hide");
                 }
             })
         }

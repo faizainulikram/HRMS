@@ -2,7 +2,7 @@
 @inject IAuthorizationService AuthorizationService
 @using Microsoft.AspNetCore.Identity
 @inject UserManager<ApplicationUser> userManager
-@model PaginatedList<BIA.Dashboard.Template.Models.PayrollAdvice>
+@model PaginatedList<BIA.Dashboard.Template.Models.BankAccountPayrollAdvice>
 
 @{
     ViewData["Title"] = "Bank Account Advice";
@@ -118,8 +118,15 @@
                             <td>@Html.DisplayFor(modelItem => item.ICNumber)</td>
                             <td>@Html.DisplayFor(modelItem => item.PersonnelInformation.Name)</td>
                             <td>@Html.DisplayFor(modelItem => item.Remarks)</td>
-                            <td>@Html.DisplayFor(modelItem => item.Status)</td>
                             <td>
+                                @if (item.Status == "C") 
+                                { 
+                                   <span class="badge badge-danger">Cancelled</span>
+                                }
+                            </td>
+
+
+                  <td>
                                 @*<a asp-action="EditUserDetails" asp-route-id="@item.Id" class="btn btn-sm btn-secondary">Edit Details</a>*@
                                 <a href="#" onclick="ConfirmEdit(@item.PayrollAdviceId)" class="btn btn-sm btn-secondary">Edit</a>
                                 <a href="#" onclick="ConfirmCancel(@item.PayrollAdviceId)" class="btn btn-sm btn-warning">Cancel</a>
@@ -212,8 +219,7 @@
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 <script type="text/javascript">
-        //document.getElementById("addBankAccountAdvice").onclick = $("#addDiv").load("/Payroll/AddPayrollAdvice",
-        //    function () { $("#addModal").modal('toggle'); });
+
         $(document).ready(function () {
             $("#PersonnelInformationId").chosen();
         });
@@ -253,18 +259,24 @@
 
         function getIcNumber() {
             //alert(id.value);
-            $.ajax({
-                url: "/Payroll/GetIcNumber",
-                //data: { "id": id.value },
-                type: "GET",
-                dataType: "Json",
-                data: { id: $("#PersonnelInformationId").val() },
-                contentType: "application/json",
-                success: function (icNumber) {
-                    document.getElementById("ICNumber").value = (icNumber);
-                    //$('#addBankAccountAdvice input[name="ICNumber"]').value = data.identityCardNumber;
-                },
-            });
+            let personalInfoId = $("#PersonnelInformationId").val();
+            if (Number(personalInfoId) > 0) {
+                $.ajax({
+                    url: "/Payroll/GetIcNumber",
+                    //data: { "id": id.value },
+                    type: "GET",
+                    dataType: "Json",
+                    data: { id: personalInfoId },
+                    contentType: "application/json",
+                    success: function (icNumber) {
+                        document.getElementById("ICNumber").value = (icNumber);
+                    },
+                });
+            }
+            else {
+                document.getElementById("ICNumber").value = '';
+            }
+           
         }
 
         var CancelAdviceNoReplacement = function () {

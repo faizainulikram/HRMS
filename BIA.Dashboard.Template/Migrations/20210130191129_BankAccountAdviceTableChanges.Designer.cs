@@ -4,14 +4,16 @@ using BIA.Dashboard.Template.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace BIA.Dashboard.Template.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210130191129_BankAccountAdviceTableChanges")]
+    partial class BankAccountAdviceTableChanges
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -55,8 +57,7 @@ namespace BIA.Dashboard.Template.Migrations
                     b.Property<int?>("PayrollLedgerId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("PersonnelInformationId")
-                        .IsRequired()
+                    b.Property<int>("PersonnelInformationId")
                         .HasColumnType("int");
 
                     b.Property<string>("Remarks")
@@ -81,112 +82,6 @@ namespace BIA.Dashboard.Template.Migrations
                     b.HasIndex("PersonnelInformationId");
 
                     b.ToTable("BankAccountPayrollAdvice");
-                });
-
-            modelBuilder.Entity("BIA.Dashboard.Template.Models.DeductionPayrollAdvice", b =>
-                {
-                    b.Property<int>("PayrollAdviceId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("AdviceNumber")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("Date")
-                        .HasColumnType("datetime2");
-
-                    b.Property<decimal?>("Deduction")
-                        .IsRequired()
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("ICNumber")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("PayrollLedgerId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("PersonnelInformationId")
-                        .IsRequired()
-                        .HasColumnType("int");
-
-                    b.Property<string>("Remarks")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Status")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("StatusDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("TransactionEndDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("TransactionStartDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("PayrollAdviceId");
-
-                    b.HasIndex("PayrollLedgerId");
-
-                    b.HasIndex("PersonnelInformationId");
-
-                    b.ToTable("DeductionPayrollAdvices");
-                });
-
-            modelBuilder.Entity("BIA.Dashboard.Template.Models.EarningPayrollAdvice", b =>
-                {
-                    b.Property<int>("PayrollAdviceId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("AdviceNumber")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("Date")
-                        .HasColumnType("datetime2");
-
-                    b.Property<decimal?>("Earning")
-                        .IsRequired()
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("ICNumber")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("PayrollLedgerId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("PersonnelInformationId")
-                        .IsRequired()
-                        .HasColumnType("int");
-
-                    b.Property<string>("Remarks")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Status")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("StatusDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("TransactionEndDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("TransactionStartDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("PayrollAdviceId");
-
-                    b.HasIndex("PayrollLedgerId");
-
-                    b.HasIndex("PersonnelInformationId");
-
-                    b.ToTable("EarningPayrollAdvices");
                 });
 
             modelBuilder.Entity("BIA.Dashboard.Template.Models.EducationDetail", b =>
@@ -883,59 +778,6 @@ namespace BIA.Dashboard.Template.Migrations
                     b.ToTable("ProfessionalQualificationUser");
                 });
 
-            modelBuilder.Entity("BIA.Dashboard.Template.Models.SalaryPayrollAdvice", b =>
-                {
-                    b.Property<int>("PayrollAdviceId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("AdviceNumber")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("Date")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("ICNumber")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("PayrollLedgerId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("PersonnelInformationId")
-                        .IsRequired()
-                        .HasColumnType("int");
-
-                    b.Property<string>("Remarks")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal?>("Salary")
-                        .IsRequired()
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("Status")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("StatusDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("TransactionEndDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("TransactionStartDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("PayrollAdviceId");
-
-                    b.HasIndex("PayrollLedgerId");
-
-                    b.HasIndex("PersonnelInformationId");
-
-                    b.ToTable("SalaryPayrollAdvices");
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.DataProtection.EntityFrameworkCore.DataProtectionKey", b =>
                 {
                     b.Property<int>("Id")
@@ -1102,32 +944,6 @@ namespace BIA.Dashboard.Template.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("BIA.Dashboard.Template.Models.DeductionPayrollAdvice", b =>
-                {
-                    b.HasOne("BIA.Dashboard.Template.Models.PayrollLedger", "Ledger")
-                        .WithMany()
-                        .HasForeignKey("PayrollLedgerId");
-
-                    b.HasOne("BIA.Dashboard.Template.Models.PersonnelInformation", "PersonnelInformation")
-                        .WithMany()
-                        .HasForeignKey("PersonnelInformationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("BIA.Dashboard.Template.Models.EarningPayrollAdvice", b =>
-                {
-                    b.HasOne("BIA.Dashboard.Template.Models.PayrollLedger", "Ledger")
-                        .WithMany()
-                        .HasForeignKey("PayrollLedgerId");
-
-                    b.HasOne("BIA.Dashboard.Template.Models.PersonnelInformation", "PersonnelInformation")
-                        .WithMany()
-                        .HasForeignKey("PersonnelInformationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("BIA.Dashboard.Template.Models.EducationDetail", b =>
                 {
                     b.HasOne("BIA.Dashboard.Template.Models.PersonnelInformation", "PersonnelInformation")
@@ -1231,19 +1047,6 @@ namespace BIA.Dashboard.Template.Migrations
                         .WithMany("ProfessionalQualificationUser")
                         .HasForeignKey("PersonnelInformationUserId")
                         .OnDelete(DeleteBehavior.Cascade);
-                });
-
-            modelBuilder.Entity("BIA.Dashboard.Template.Models.SalaryPayrollAdvice", b =>
-                {
-                    b.HasOne("BIA.Dashboard.Template.Models.PayrollLedger", "Ledger")
-                        .WithMany()
-                        .HasForeignKey("PayrollLedgerId");
-
-                    b.HasOne("BIA.Dashboard.Template.Models.PersonnelInformation", "PersonnelInformation")
-                        .WithMany()
-                        .HasForeignKey("PersonnelInformationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
