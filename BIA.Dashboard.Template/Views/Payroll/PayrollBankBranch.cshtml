@@ -8,74 +8,13 @@
     ViewData["Title"] = "Payroll Bank Branch";
 }
 
-<nav class="navbar navbar-horizontal navbar-expand-md navbar-dark bg-default rounded">
-    <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-        <div class="navbar-collapse-header">
-            <div class="row">
-                <div class="col-6 collapse-close">
-                    <button class="navbar-toggler navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
-                        <span></span>
-                        <span></span>
-                    </button>
-                </div>
-            </div>
-        </div>
-        <div class="navbar-nav nav-fill w-100">
-            <ul class="navbar-nav nav-fill w-100">
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        Posting/Enquiry
-                    </a>
-                    <div class="dropdown-menu nav-fill w-100" aria-labelledby="navbarDropdown">
-                        <a class="dropdown-item nav-fill w-100" asp-action="BankAccountAdvice" asp-controller="Payroll">Bank Account Advice</a>
-                        <a class="dropdown-item nav-fill w-100" asp-action="EarningAdvice" asp-controller="Payroll">Earning Advice</a>
-                        <a class="dropdown-item nav-fill w-100" asp-action="DeductionAdvice" asp-controller="Payroll">Deduction Advice</a>
-                        <a class="dropdown-item nav-fill w-100" asp-action="AdviceHistory" asp-controller="Payroll">Advice History</a>
-                        <a class="dropdown-item nav-fill w-100" asp-action="PayrollPayment" asp-controller="Payroll">Payroll Payment</a>
-                        @*<div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="#">#</a>*@
-                    </div>
-                </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        Reports
-                    </a>
-                    <div class="dropdown-menu nav-fill w-100" aria-labelledby="navbarDropdown">
-                        <a class="dropdown-item" asp-action="">Payroll Masterlist</a>
-                        <a class="dropdown-item" asp-action="">Payroll Summary</a>
-                        <a class="dropdown-item" asp-action="">Payroll Payment Instruction</a>
-                        <a class="dropdown-item" asp-action="">Earning/Deduction List</a>
-                        <a class="dropdown-item" asp-action="">Individual Ledger</a>
-                        <a class="dropdown-item" asp-action="">Advice Listing Current Month</a>
-                        <a class="dropdown-item" asp-action="">Payroll Reconcilation</a>
-                        @*<div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="#">#</a>*@
-                    </div>
-                </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        Maintenance
-                    </a>
-                    <div class="dropdown-menu nav-fill w-100" aria-labelledby="navbarDropdown">
-                        <a class="dropdown-item" asp-action="PayrollLedger" asp-controller="Payroll">Payroll Ledger</a>
-                        <a class="dropdown-item" asp-action="BankBranchCode" asp-controller="Payroll">Bank/Branch Code</a>
-                        @*<div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="#">#</a>*@
-                    </div>
-                </li>
-            </ul>
-        </div>
-    </div>
-</nav>
+@Html.Partial("_PayrollNav")
 <div class="row">
     <div class="col">
         <div class="card-header border-0">
             <h1 class="mb-5 text-center">Payroll Bank Branch</h1>
             <div class="form-group" asp-controller="Payroll" asp-action="PayrollBankBranch" method="get">
-                <form asp-controller="Payroll" asp-action="Index" method="get">
+                <form asp-controller="Payroll" asp-action="PayrollBankBranch" method="get">
                     @*<span class="input-group-text">Search Personnels: </span>*@
                     <div class="input-group">
                         <div class="input-group-prepend">
@@ -97,9 +36,9 @@
             <table class="table align-items-center table-flush">
                 <thead class="thead-flush">
                     <tr>
-                        <th scope="col" width="20%">Bank</th>
+                        <th scope="col" width="20%">Bank Code</th>
                         <th scope="col" width="20%">Bank Name</th>
-                        <th scope="col" width="20%">Branch</th>
+                        <th scope="col" width="20%">Branch Code</th>
                         <th scope="col" width="20%">Branch Name</th>
                         <th></th>
                     </tr>
@@ -161,16 +100,18 @@
                     <div class="col">
                         <form asp-action="AddPayrollBankBranch" id="addBankBranch" enctype="multipart/form-data" method="post" role="form">
                             <div class="row form-group m-1">
-                                <div class="col-md-2">
+                                <div class="col-md-4">
                                     <p class="mt-0 mb-0"><label class="control-label">Bank</label></p>
-                                    <input type="text" class="form-control" id="AddBank" name="addBank" />
+                                    <select name="BankId" id="bankDDL" class="form-control">
+                                        <option value="">Select Bank</option>
+                                        @foreach (var item in ViewBag.banks as List<PayrollBank>)
+                                        {
+                                            <option value="@item.PayrollBankId">@item.BankName</option>
+                                        }
+                                    </select>
                                 </div>
                                 <div class="col-md-4">
-                                    <p class="mt-0 mb-0"><label class="control-label">Bank Name</label></p>
-                                    <input type="text" class="form-control" id="AddBankName" name="addBankName" />
-                                </div>
-                                <div class="col-md-2">
-                                    <p class="mt-0 mb-0"><label class="control-label">Branch</label></p>
+                                    <p class="mt-0 mb-0"><label class="control-label">Branch Code</label></p>
                                     <input type="text" class="form-control" id="AddBranch" name="addBranch" />
                                 </div>
                                 <div class="col-md-4">
@@ -203,15 +144,18 @@
                     <div class="col">
                         <form asp-action="EditPayrollBankBranch" id="editPayrollBankBranch" enctype="multipart/form-data" method="post" role="form">
                             <div class="row form-group m-1">
-                                <div class="col-md-2">
+                                
+                                <div class="col-md-4">
                                     <p class="mt-0 mb-0"><label class="control-label">Bank</label></p>
-                                    <input type="text" class="form-control" id="EditBank" name="editBank" />
+                                    <select name="BankId" id="editBankDDL"  class="form-control">
+                                        <option value="">Select Bank</option>
+                                        @foreach (var item in ViewBag.banks as List<PayrollBank>)
+                                        {
+                                            <option value="@item.PayrollBankId">@item.BankName</option>
+                                        }
+                                    </select>
                                 </div>
                                 <div class="col-md-4">
-                                    <p class="mt-0 mb-0"><label class="control-label">Bank Name</label></p>
-                                    <input type="text" class="form-control" id="EditBankName" name="editBankName" />
-                                </div>
-                                <div class="col-md-2">
                                     <p class="mt-0 mb-0"><label class="control-label">Branch</label></p>
                                     <input type="text" class="form-control" id="EditBranch" name="editBranch" />
                                 </div>
@@ -235,13 +179,13 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 class="modal-title" id="myModalLabel">Delete Bank/Branch Code</h3>
+                <h3 class="modal-title" id="myModalLabel">Delete Branch</h3>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
-                <h4>Are you sure you want to remove this bank/branch code?</h4>
+                <h4>Are you sure you want to remove this Branch code?</h4>
 
             </div>
             <div class="modal-footer">
@@ -302,9 +246,8 @@
                 contentType: "application/json",
                 success: function (payrollBankBranch) {
                     $("#editModal").modal('show');
-                    $('#editPayrollBankBranch input[name="editBank"]').val(payrollBankBranch.bank);
-                    $('#editPayrollBankBranch input[name="editBankName"]').val(payrollBankBranch.bankName);
-                    $('#editPayrollBankBranch input[name="editBranch"]').val(payrollBankBranch.branch);
+                    $('#editBankDDL').val(payrollBankBranch.payrollBankId);
+                    $('#editPayrollBankBranch input[name="editBranch"]').val(payrollBankBranch.branchCode);
                     $('#editPayrollBankBranch input[name="editBranchName"]').val(payrollBankBranch.branchName);
                 }
             })
@@ -312,11 +255,12 @@
 
         var AddBankBranch = function () {
             //var ledgerId = $("#hiddenLedgerId").val();
-            var bank = $('#AddBank').val();
-            var bankName = $('#AddBankName').val();
+            debugger;
+            var bank = $('#bankDDL').val();
+             
             var branch = $('#AddBranch').val();
             var branchName = $('#AddBranchName').val();
-            //alert(personnelId)
+
             $.ajax({
                 beforeSend: function (request) {
                     $("#addModal").modal("hide");
@@ -326,9 +270,9 @@
                 type: 'POST',
                 url: '/Payroll/AddPayrollBankBranch',
                 data: {
-                    Bank: bank,
-                    BankName: bankName,
-                    Branch: branch,
+                    PayrollBankId: bank,
+                    
+                    BranchCode: branch,
                     BranchName: branchName,
                 },
                 success: function () {
@@ -339,9 +283,9 @@
         }
 
         var EditBankBranch = function () {
+            debugger;
             var bankBranchId = $("#hiddenBankBranchId").val();
-            var bank = $('#EditBank').val();
-            var bankName = $('#EditBankName').val();
+            var bank = $('#editBankDDL').val();
             var branch = $('#EditBranch').val();
             var branchName = $('#EditBranchName').val();
             $.ajax({
@@ -354,9 +298,8 @@
                 url: '/Payroll/EditPayrollBankBranch',
                 data: {
                     PayrollBankBranchId: bankBranchId,
-                    Bank: bank,
-                    BankName: bankName,
-                    Branch: branch,
+                    PayrollBankId: bank,
+                    BranchCode: branch,
                     BranchName: branchName,
                 },
                 success: function () {

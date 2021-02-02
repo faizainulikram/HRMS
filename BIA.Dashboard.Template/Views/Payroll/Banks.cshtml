@@ -2,19 +2,19 @@
 @inject IAuthorizationService AuthorizationService
 @using Microsoft.AspNetCore.Identity
 @inject UserManager<ApplicationUser> userManager
-@model PaginatedList<BIA.Dashboard.Template.Models.PayrollLedger>
+@model PaginatedList<BIA.Dashboard.Template.Models.PayrollBank>
 
 @{
-    ViewData["Title"] = "Payroll Ledger";
+    ViewData["Title"] = "Payroll Banks";
 }
 
 @Html.Partial("_PayrollNav")
 <div class="row">
     <div class="col">
         <div class="card-header border-0">
-            <h1 class="mb-5 text-center">Payroll Ledger</h1>
-            <div class="form-group" asp-controller="Payroll" asp-action="PayrollLedger" method="get">
-                <form asp-controller="Payroll" asp-action="Index" method="get">
+            <h1 class="mb-5 text-center">Payroll Banks</h1>
+            <div class="form-group" asp-controller="Payroll" asp-action="Banks" method="get">
+                <form asp-controller="Payroll" asp-action="Banks" method="get">
                     @*<span class="input-group-text">Search Personnels: </span>*@
                     <div class="input-group">
                         <div class="input-group-prepend">
@@ -22,35 +22,31 @@
                         </div>
                         <input class="form-control mr-2" type="text" name="SearchString">
                         <button type="submit" class="btn btn-primary btn-md mr-2" value="Filter">Search</button>
-                        <button type="button" class="btn btn-secondary btn-md mr-2" value="Return to Index" onclick="window.location='@Url.Action("PayrollLedger", "Payroll")'">Return to Index</button>
+                        <button type="button" class="btn btn-secondary btn-md mr-2" value="Return to Index" onclick="window.location='@Url.Action("Banks", "Payroll")'">Return to Index</button>
                     </div>
                 </form>
             </div>
-            @*<a asp-area="Identity" asp-page="/Account/Register" class="btn btn-success btn-md" style="width:auto">
-                    Add New User
-                </a>*@
-            <a href="#" onclick="ConfirmAdd()" class="btn btn-success btn-md" style="width:auto">Add New Ledger</a>
+           
+            <a href="#" onclick="ConfirmAdd()" class="btn btn-success btn-md" style="width:auto">Add New Bank</a>
         </div>
-        @*<button class="btn btn-success btn-md" onclick="window.location='@Url.Action("Create", "PersonnelInformations")'">Add</button>*@
         <div class="table-responsive">
             <table class="table align-items-center table-flush">
                 <thead class="thead-flush">
                     <tr>
-                        <th scope="col" width="25%">Ledger Code</th>
-                        <th scope="col" width="50%">Account Name</th>
+                        <th scope="col" width="20%">Bank Code</th>
+                        <th scope="col" width="20%">Bank Name</th>
                         <th></th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach (var item in Model)
                     {
-                        <tr id="row_@item.PayrollLedgerId">
-                            <td>@Html.DisplayFor(modelItem => item.LedgerCode)</td>
-                            <td>@Html.DisplayFor(modelItem => item.Name)</td>
+                        <tr id="row_@item.PayrollBankId">
+                            <td>@Html.DisplayFor(modelItem => item.BankCode)</td>
+                            <td>@Html.DisplayFor(modelItem => item.BankName)</td>
                             <td>
-                                @*<a asp-action="EditUserDetails" asp-route-id="@item.Id" class="btn btn-sm btn-secondary">Edit Details</a>*@
-                                <a href="#" onclick="ConfirmEdit(@item.PayrollLedgerId)" class="btn btn-sm btn-secondary">Edit</a>
-                                <a href="#" onclick="ConfirmDelete(@item.PayrollLedgerId)" class="btn btn-sm btn-warning">Delete</a>
+                                <a href="#" onclick="ConfirmEdit(@(item.PayrollBankId))" class="btn btn-sm btn-secondary">Edit</a>
+                                <a href="#" onclick="ConfirmDelete(@item.PayrollBankId)" class="btn btn-sm btn-warning">Delete</a>
                             </td>
                         </tr>
                     }
@@ -58,7 +54,7 @@
             </table>
         </div>
         <div class="d-flex card-footer flex-row-reverse">
-
+            
             @{
                 var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
                 var nextDisabled = !Model.HasNextPage ? "disabled" : "";
@@ -86,7 +82,7 @@
     <div class="modal-dialog modal-xl">
         <div class="modal-content modal-xl" style="width: 150%">
             <div class="modal-header">
-                <h3 class="modal-title" id="myModalLabel" style="align-content: center">Add Ledger</h3>
+                <h3 class="modal-title" id="myModalLabel" style="align-content: center">Add Bank</h3>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -94,16 +90,17 @@
             <div class="modal-body">
                 <div class="row">
                     <div class="col">
-                        <form asp-action="AddPayrollLedger" id="addPayrollLedger" enctype="multipart/form-data" method="post" role="form">
+                        <form asp-action="AddPayrollBank" id="addBankBranch" enctype="multipart/form-data" method="post" role="form">
                             <div class="row form-group m-1">
+                                <div class="col-md-2">
+                                    <p class="mt-0 mb-0"><label class="control-label">Bank Code</label></p>
+                                    <input type="text" class="form-control" id="AddBank" name="addBank" />
+                                </div>
                                 <div class="col-md-4">
-                                    <p class="mt-0 mb-0"><label class="control-label">Ledger Code</label></p>
-                                    <input type="text" class="form-control" id="AddLedgerCode" name="addLedgerCode" />
+                                    <p class="mt-0 mb-0"><label class="control-label">Bank Name</label></p>
+                                    <input type="text" class="form-control" id="AddBankName" name="addBankName" />
                                 </div>
-                                <div class="col-md-8">
-                                    <p class="mt-0 mb-0"><label class="control-label">Account Name</label></p>
-                                    <input type="text" class="form-control" id="AddAccountName" name="addAccountName" />
-                                </div>
+                                
                             </div>
                         </form>
                     </div>
@@ -111,7 +108,7 @@
             </div>
             <div class="modal-footer">
                 <a href="#" class="btn btn-warning" data-dismiss="modal">Cancel</a>
-                <a href="#" class="btn btn-default" onclick="AddLedger()">Confirm</a>
+                <a href="#" class="btn btn-default" onclick="AddBankBranch()">Confirm</a>
             </div>
         </div>
     </div>
@@ -120,7 +117,7 @@
     <div class="modal-dialog modal-xl">
         <div class="modal-content modal-xl" style="width: 150%">
             <div class="modal-header">
-                <h3 class="modal-title" id="myModalLabel">Edit Ledger</h3>
+                <h3 class="modal-title" id="myModalLabel">Edit Bank Code</h3>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -128,16 +125,17 @@
             <div class="modal-body">
                 <div class="row">
                     <div class="col">
-                        <form asp-action="EditPayrollLedger" id="editPayrollLedger" enctype="multipart/form-data" method="post" role="form">
+                        <form asp-action="EditPayrollBankBranch" id="editPayrollBankBranch" enctype="multipart/form-data" method="post" role="form">
                             <div class="row form-group m-1">
+                                <div class="col-md-2">
+                                    <p class="mt-0 mb-0"><label class="control-label">Bank Code</label></p>
+                                    <input type="text" class="form-control" id="EditBank" name="editBank" />
+                                </div>
                                 <div class="col-md-4">
-                                    <p class="mt-0 mb-0"><label class="control-label">Ledger Code</label></p>
-                                    <input type="text" class="form-control" id="EditLedgerCode" name="editLedgerCode" />
+                                    <p class="mt-0 mb-0"><label class="control-label">Bank Name</label></p>
+                                    <input type="text" class="form-control" id="EditBankName" name="editBankName" />
                                 </div>
-                                <div class="col-md-8">
-                                    <p class="mt-0 mb-0"><label class="control-label">Account Name</label></p>
-                                    <input type="text" class="form-control" id="EditAccountName" name="editAccountName" />
-                                </div>
+                                
                             </div>
                         </form>
                     </div>
@@ -145,7 +143,7 @@
             </div>
             <div class="modal-footer">
                 <a href="#" class="btn btn-warning" data-dismiss="modal">Cancel</a>
-                <a href="#" class="btn btn-default" onclick="EditLedger()">Confirm</a>
+                <a href="#" class="btn btn-default" onclick="EditBankBranch()">Confirm</a>
             </div>
         </div>
     </div>
@@ -154,18 +152,18 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 class="modal-title" id="myModalLabel">Delete Ledger</h3>
+                <h3 class="modal-title" id="myModalLabel">Delete Bank Code</h3>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
-                <h4>Are you sure you want to remove this ledger?</h4>
+                <h4>Are you sure you want to remove this bank code?</h4>
 
             </div>
             <div class="modal-footer">
                 <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
-                <a href="#" class="btn btn-warning" onclick="DeleteLedger()">Confirm</a>
+                <a href="#" class="btn btn-warning" onclick="DeleteBankBranch()">Confirm</a>
             </div>
         </div>
     </div>
@@ -175,18 +173,18 @@
         <span class="fa fa-spinner fa-spin fa-3x"></span>
     </div>
 </div>
-<input type="hidden" id="hiddenLedgerId" />
+<input type="hidden" id="hiddenBankBranchId" />
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
     <script type="text/javascript">
 
-        var ConfirmDelete = function (PayrollLedgerId) {
-            $("#hiddenLedgerId").val(PayrollLedgerId);
+        var ConfirmDelete = function (PayrollBankBranchId) {
+            $("#hiddenBankBranchId").val(PayrollBankBranchId);
             $("#deleteModal").modal('show');
         }
 
-        var DeleteLedger = function () {
-            var ledgerId = $("#hiddenLedgerId").val();
+        var DeleteBankBranch = function () {
+            var bankBranchId = $("#hiddenBankBranchId").val();
             //alert(personnelId)
             $.ajax({
                 beforeSend: function (request) {
@@ -195,42 +193,43 @@
                     request.setRequestHeader("RequestVerificationToken", $("[name='__RequestVerificationToken']").val());
                 },
                 type: 'POST',
-                url: '/Payroll/DeletePayrollLedger',
+                url: '/Payroll/DeletePayrollBank',
                 data: {
-                    id: ledgerId
+                    id: bankBranchId
                 },
                 success: function () {
                     $("#spinnerModal").modal("hide");
-                    $("#row_" + ledgerId).remove();
+                    $("#row_" + bankBranchId).remove();
                     window.location.reload();
                 }
             })
         }
-
         var ConfirmAdd = function () {
             //$("#hiddenLedgerId").val(PersonnelId);
             $("#addModal").modal('show');
         }
 
-        var ConfirmEdit = function (PayrollLedgerId) {
-            $("#hiddenLedgerId").val(PayrollLedgerId);
+        var ConfirmEdit = function (PayrollBankBranchId) {
+            $("#hiddenBankBranchId").val(PayrollBankBranchId);
+
             $.ajax({
                 type: 'GET',
-                url: '/Payroll/GetPayrollLedger/' + PayrollLedgerId,
+                url: '/Payroll/GetPayrollBank/' + PayrollBankBranchId,
                 dataType: 'JSON',
                 contentType: "application/json",
-                success: function (payrollLedger) {
+                success: function (payrollBankBranch) {
                     $("#editModal").modal('show');
-                    $('#editPayrollLedger input[name="editLedgerCode"]').val(payrollLedger.ledgerCode);
-                    $('#editPayrollLedger input[name="editAccountName"]').val(payrollLedger.name);
+                    $('#editPayrollBankBranch input[name="editBank"]').val(payrollBankBranch.bankCode);
+                    $('#editPayrollBankBranch input[name="editBankName"]').val(payrollBankBranch.bankName);
                 }
             })
         }
 
-        var AddLedger = function () {
+        var AddBankBranch = function () {
             //var ledgerId = $("#hiddenLedgerId").val();
-            var ledgerCode = $('#AddLedgerCode').val();
-            var accountName = $('#AddAccountName').val();
+            var bank = $('#AddBank').val();
+            var bankName = $('#AddBankName').val();
+            //alert(personnelId)
             $.ajax({
                 beforeSend: function (request) {
                     $("#addModal").modal("hide");
@@ -238,10 +237,10 @@
                     request.setRequestHeader("RequestVerificationToken", $("[name='__RequestVerificationToken']").val());
                 },
                 type: 'POST',
-                url: '/Payroll/AddPayrollLedger',
+                url: '/Payroll/AddPayrollBank',
                 data: {
-                    LedgerCode: ledgerCode,
-                    Name: accountName,
+                    BankCode: bank,
+                    BankName: bankName,
                 },
                 success: function () {
                     $("#spinnerModal").modal("hide");
@@ -250,10 +249,10 @@
             })
         }
 
-        var EditLedger = function () {
-            var ledgerId = $("#hiddenLedgerId").val();
-            var ledgerCode = $('#EditLedgerCode').val();
-            var accountName = $('#EditAccountName').val();
+        var EditBankBranch = function () {
+            var bankBranchId = $("#hiddenBankBranchId").val();
+            var bank = $('#EditBank').val();
+            var bankName = $('#EditBankName').val();
             $.ajax({
                 beforeSend: function (request) {
                     $("#editModal").modal("hide");
@@ -261,11 +260,11 @@
                     request.setRequestHeader("RequestVerificationToken", $("[name='__RequestVerificationToken']").val());
                 },
                 type: 'POST',
-                url: '/Payroll/EditPayrollLedger',
+                url: '/Payroll/EditPayrollBank',
                 data: {
-                    PayrollLedgerId: ledgerId,
-                    LedgerCode: ledgerCode,
-                    Name: accountName,
+                    PayrollBankId: bankBranchId,
+                    BankCode: bank,
+                    BankName: bankName,
                 },
                 success: function () {
                     $("#spinnerModal").modal("hide");

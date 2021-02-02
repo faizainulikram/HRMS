@@ -863,9 +863,36 @@ namespace BIA.Dashboard.Template.Controllers
                 || s.BranchName.Contains(searchString)
                 ));
             }
-
+            ViewBag.banks = _context.PayrollBanks.ToList();
             int pageSize = 10;
             return View(await PaginatedList<PayrollBankBranch>.CreateAsync(bankbranches.AsNoTracking(), pageNumber ?? 1, pageSize));
+        }
+
+        public async Task<IActionResult> Banks(string searchString, string currentFilter, int? pageNumber)
+        {
+            if (searchString != null)
+            {
+                pageNumber = 1;
+            }
+            else
+            {
+                searchString = currentFilter;
+            }
+
+            ViewData["CurrentFilter"] = searchString;
+
+            var bankbranches = from s in _context.PayrollBanks 
+                               select s;
+
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                bankbranches = bankbranches.Where(s => (s.BankName.Contains(searchString)
+                || s.BankCode.Contains(searchString)
+                ));
+            }
+
+            int pageSize = 10;
+            return View(await PaginatedList<PayrollBank>.CreateAsync(bankbranches.AsNoTracking(), pageNumber ?? 1, pageSize));
         }
 
         [HttpPost]
@@ -881,6 +908,19 @@ namespace BIA.Dashboard.Template.Controllers
 
             return RedirectToAction(nameof(PayrollBankBranch));
         }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddPayrollBank([FromForm] PayrollBank payrollBank)
+        {
+            if (ModelState.IsValid)
+            {
+                _context.PayrollBanks.Add(payrollBank);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Banks));
+            }
+
+            return RedirectToAction(nameof(Banks));
+        }
 
         [HttpGet]
         public async Task<JsonResult> GetPayrollBankBranch(int id)
@@ -891,9 +931,22 @@ namespace BIA.Dashboard.Template.Controllers
             return Json(payrollBankBranch);
         }
 
+        [HttpGet]
+        public async Task<JsonResult> GetPayrollBank(int id)
+        {
+            var payrollBank = await _context.PayrollBanks
+                .FirstOrDefaultAsync(m => m.PayrollBankId == id);
+
+            return Json(payrollBank);
+        }
+
         private bool PayrollBankBranchExists(int id)
         {
             return _context.PayrollBankBranch.Any(e => e.PayrollBankBranchId == id);
+        }
+        private bool PayrollBankExists(int id)
+        {
+            return _context.PayrollBanks.Any(e => e.PayrollBankId == id);
         }
 
         [HttpPost]
@@ -924,6 +977,35 @@ namespace BIA.Dashboard.Template.Controllers
             }
             return RedirectToAction(nameof(PayrollBankBranch));
         }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditPayrollBank([FromForm] PayrollBank bank)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    _context.Update(bank);
+                    await _context.SaveChangesAsync();
+                }
+
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!PayrollBankExists(bank.PayrollBankId))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+
+                return RedirectToAction(nameof(Banks));
+            }
+            return RedirectToAction(nameof(Banks));
+        }
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -933,6 +1015,15 @@ namespace BIA.Dashboard.Template.Controllers
             _context.PayrollBankBranch.Remove(payrollBankBranch);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(PayrollBankBranch));
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeletePayrollBank(int id)
+        {
+            var payrollBank = await _context.PayrollBanks.FindAsync(id);
+            _context.PayrollBanks.Remove(payrollBank);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Banks));
         }
 
         public ActionResult SearchPersonnelInformation(string term)
