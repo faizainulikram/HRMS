@@ -2,231 +2,212 @@
 @inject IAuthorizationService AuthorizationService
 @using Microsoft.AspNetCore.Identity
 @inject UserManager<ApplicationUser> userManager
-@model PaginatedList<BIA.Dashboard.Template.Models.EarningPayrollAdvice>
+    <link rel="stylesheet" href="~/vendor/Datatables/dataTables.bootstrap4.min.css">
+    @{
+        ViewData["Title"] = "Bank Account Advice";
+    }
 
-@{
-    ViewData["Title"] = "Bank Account Advice";
-}
+    <nav class="navbar navbar-horizontal navbar-expand-md navbar-dark bg-default rounded">
+        <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+            <div class="navbar-collapse-header">
+                <div class="row">
+                    <div class="col-6 collapse-close">
+                        <button class="navbar-toggler navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+                            <span></span>
+                            <span></span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="navbar-nav nav-fill w-100">
+                <ul class="navbar-nav nav-fill w-100">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                           data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Posting/Enquiry
+                        </a>
+                        <div class="dropdown-menu nav-fill w-100" aria-labelledby="navbarDropdown">
+                            <a class="dropdown-item nav-fill w-100" asp-action="BankAccountAdvice" asp-controller="Payroll">Bank Account Advice</a>
+                            <a class="dropdown-item nav-fill w-100" asp-action="EarningAdvice" asp-controller="Payroll">Earning Advice</a>
+                            <a class="dropdown-item nav-fill w-100" asp-action="DeductionAdvice" asp-controller="Payroll">Deduction Advice</a>
+                            <a class="dropdown-item nav-fill w-100" asp-action="AdviceHistory" asp-controller="Payroll">Advice History</a>
+                            <a class="dropdown-item nav-fill w-100" asp-action="PayrollPayment" asp-controller="Payroll">Payroll Payment</a>
+                            @*<div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="#">#</a>*@
+                        </div>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Reports
+                        </a>
+                        <div class="dropdown-menu nav-fill w-100" aria-labelledby="navbarDropdown">
+                            <a class="dropdown-item" asp-action="">Payroll Masterlist</a>
+                            <a class="dropdown-item" asp-action="">Payroll Summary</a>
+                            <a class="dropdown-item" asp-action="">Payroll Payment Instruction</a>
+                            <a class="dropdown-item" asp-action="">Earning/Deduction List</a>
+                            <a class="dropdown-item" asp-action="">Individual Ledger</a>
+                            <a class="dropdown-item" asp-action="">Advice Listing Current Month</a>
+                            <a class="dropdown-item" asp-action="">Payroll Reconcilation</a>
+                            @*<div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="#">#</a>*@
+                        </div>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Maintenance
+                        </a>
+                        <div class="dropdown-menu nav-fill w-100" aria-labelledby="navbarDropdown">
+                            <a class="dropdown-item" asp-action="PayrollLedger" asp-controller="Payroll">Payroll Ledger</a>
+                            <a class="dropdown-item" asp-action="PayrollBankBranch" asp-controller="Payroll">Bank/Branch Code</a>
+                            @*<div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="#">#</a>*@
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div class="row">
+        <div class="col">
+            <div class="card-header border-0">
+                <h1 class="mb-5 text-center"></h1>
 
-<nav class="navbar navbar-horizontal navbar-expand-md navbar-dark bg-default rounded">
-    <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-        <div class="navbar-collapse-header">
-            <div class="row">
-                <div class="col-6 collapse-close">
-                    <button class="navbar-toggler navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
-                        <span></span>
-                        <span></span>
+
+                <a href="#" id="addNewEarningAdvice" class="btn btn-success btn-md" style="width:auto">Add New Earning Advice</a>
+                <div class="table-responsive" style="margin-top:20px;overflow:hidden">
+                    <table class="table align-items-center table-flush" id="adviceTable">
+                        <thead class="thead-flush">
+                            <tr>
+                                <th scope="col" width="15%">Advice Number</th>
+                                <th scope="col" width="15%">Date</th>
+                                <th scope="col" width="15%">IC Number</th>
+                                <th scope="col" width="15%">Name</th>
+                                <th scope="col" width="15%">Remarks</th>
+                                <th scope="col" width="15%">Status</th>
+                                <th>Earning</th>
+                                <th></th>
+
+
+                            </tr>
+                        </thead>
+
+                    </table>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+
+    <div id="viewDiv">
+    </div>
+    <div id="addDiv">
+    </div>
+    <div id="editDiv">
+    </div>
+    <div id="cancelDiv">
+    </div>
+    <div class="modal fade" id="cancelModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title" id="myModalLabel">Cancel Record</h3>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
                     </button>
+                </div>
+                <div class="modal-body">
+                    <h4>Cancel record, are you sure?</h4>
+
+                </div>
+                <div class="modal-footer">
+                    <a href="#" class="btn btn-default" data-dismiss="modal">No</a>
+                    <a href="#" class="btn btn-warning" onclick="ReplacementRecord()">Yes</a>
                 </div>
             </div>
         </div>
-        <div class="navbar-nav nav-fill w-100">
-            <ul class="navbar-nav nav-fill w-100">
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
-                       data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        Posting/Enquiry
-                    </a>
-                    <div class="dropdown-menu nav-fill w-100" aria-labelledby="navbarDropdown">
-                        <a class="dropdown-item nav-fill w-100" asp-action="BankAccountAdvice" asp-controller="Payroll">Bank Account Advice</a>
-                        <a class="dropdown-item nav-fill w-100" asp-action="EarningAdvice" asp-controller="Payroll">Earning Advice</a>
-                        <a class="dropdown-item nav-fill w-100" asp-action="DeductionAdvice" asp-controller="Payroll">Deduction Advice</a>
-                        <a class="dropdown-item nav-fill w-100" asp-action="AdviceHistory" asp-controller="Payroll">Advice History</a>
-                        <a class="dropdown-item nav-fill w-100" asp-action="PayrollPayment" asp-controller="Payroll">Payroll Payment</a>
-                        @*<div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="#">#</a>*@
-                    </div>
-                </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        Reports
-                    </a>
-                    <div class="dropdown-menu nav-fill w-100" aria-labelledby="navbarDropdown">
-                        <a class="dropdown-item" asp-action="">Payroll Masterlist</a>
-                        <a class="dropdown-item" asp-action="">Payroll Summary</a>
-                        <a class="dropdown-item" asp-action="">Payroll Payment Instruction</a>
-                        <a class="dropdown-item" asp-action="">Earning/Deduction List</a>
-                        <a class="dropdown-item" asp-action="">Individual Ledger</a>
-                        <a class="dropdown-item" asp-action="">Advice Listing Current Month</a>
-                        <a class="dropdown-item" asp-action="">Payroll Reconcilation</a>
-                        @*<div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="#">#</a>*@
-                    </div>
-                </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        Maintenance
-                    </a>
-                    <div class="dropdown-menu nav-fill w-100" aria-labelledby="navbarDropdown">
-                        <a class="dropdown-item" asp-action="PayrollLedger" asp-controller="Payroll">Payroll Ledger</a>
-                        <a class="dropdown-item" asp-action="PayrollBankBranch" asp-controller="Payroll">Bank/Branch Code</a>
-                        @*<div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="#">#</a>*@
-                    </div>
-                </li>
-            </ul>
-        </div>
     </div>
-</nav>
-<div class="row">
-    <div class="col">
-        <div class="card-header border-0">
-            <h1 class="mb-5 text-center"></h1>
-            <div class="form-group" asp-controller="Payroll" asp-action="BankAccountAdvice" method="get">
-                <form asp-controller="Payroll" asp-action="Index" method="get">
-                    @*<span class="input-group-text">Search Personnels: </span>*@
-                    <div class="input-group">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="ni ni-zoom-split-in"></i></span>
-                        </div>
-                        <input class="form-control mr-2" type="text" name="SearchString">
-                        <button type="submit" class="btn btn-primary btn-md mr-2" value="Filter">Search</button>
-                        <button type="button" class="btn btn-secondary btn-md mr-2" value="Return to Index" onclick="window.location='@Url.Action("BankAccountAdvice", "Payroll")'">Return to Index</button>
-                    </div>
-                </form>
-            </div>
-            @*<a asp-area="Identity" asp-page="/Account/Register" class="btn btn-success btn-md" style="width:auto">
-                    Add New User
-                </a>*@
-            <a href="#" id="addNewEarningAdvice" class="btn btn-success btn-md" style="width:auto">Add New Earning Advice</a>
-        </div>
-        @*<button class="btn btn-success btn-md" onclick="window.location='@Url.Action("Create", "PersonnelInformations")'">Add</button>*@
-        <div class="table-responsive">
-            <table class="table align-items-center table-flush">
-                <thead class="thead-flush">
-                    <tr>
-                        <th scope="col" width="15%">Advice Number</th>
-                        <th scope="col" width="15%">Date</th>
-                        <th scope="col" width="15%">IC Number</th>
-                        <th scope="col" width="15%">Name</th>
-                        <th scope="col" width="15%">Remarks</th>
-                        <th scope="col" width="15%">Status</th>
-                        <th>Earning</th>
-                        <th></th>
+    <div class="modal fade" id="replacementModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title" id="myModalLabel">Replacement</h3>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <h4>Replacement?</h4>
 
-
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in Model)
-                    {
-                        <tr id="row_@item.PayrollAdviceId">
-                            <td>@Html.DisplayFor(modelItem => item.AdviceNumber)</td>
-                            <td>@Html.DisplayFor(modelItem => item.Date)</td>
-                            <td>@Html.DisplayFor(modelItem => item.ICNumber)</td>
-                            <td>@Html.DisplayFor(modelItem => item.PersonnelInformation.Name)</td>
-                            <td>@Html.DisplayFor(modelItem => item.Remarks)</td>
-                            <td>
-                                @if (item.Status == "C")
-                                {
-                                    <span class="badge badge-danger">Cancelled</span>
-                                }
-                            </td>
-
-                            <td>@item.Earning</td>
-                            <td>
-                                @*<a asp-action="EditUserDetails" asp-route-id="@item.Id" class="btn btn-sm btn-secondary">Edit Details</a>*@
-                                <a href="#" onclick="ConfirmEdit(@item.PayrollAdviceId)" class="btn btn-sm btn-secondary">Edit</a>
-                                <a href="#" onclick="ConfirmCancel(@item.PayrollAdviceId)" class="btn btn-sm btn-warning">Cancel</a>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
-        <div class="d-flex card-footer flex-row-reverse">
-
-            @{
-                var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
-                var nextDisabled = !Model.HasNextPage ? "disabled" : "";
-            }
-            <div class="p-2">
-                <a asp-action="Index"
-                   asp-route-sortOrder="@ViewData["CurrentSort"]"
-                   asp-route-pageNumber="@(Model.PageIndex - 1)"
-                   asp-route-currentFilter="@ViewData["CurrentFilter"]"
-                   class="btn btn-default btn-sm @prevDisabled">
-                    Previous
-                </a>
-                <a asp-action="Index"
-                   asp-route-sortOrder="@ViewData["CurrentSort"]"
-                   asp-route-pageNumber="@(Model.PageIndex + 1)"
-                   asp-route-currentFilter="@ViewData["CurrentFilter"]"
-                   class="btn btn-default btn-sm @nextDisabled">
-                    Next
-                </a>
+                </div>
+                <div class="modal-footer">
+                    <a href="#" class="btn btn-default" data-dismiss="modal" onclick="CancelAdviceNoReplacement()">No</a>
+                    <a href="#" class="btn btn-warning" onclick="CancelAdviceReplacement()">Yes</a>
+                </div>
             </div>
         </div>
     </div>
-</div>
-<div id="viewDiv">
-</div>
-<div id="addDiv">
-</div>
-<div id="editDiv">
-</div>
-<div id="cancelDiv">
-</div>
-<div class="modal fade" id="cancelModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title" id="myModalLabel">Cancel Record</h3>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <h4>Cancel record, are you sure?</h4>
-
-            </div>
-            <div class="modal-footer">
-                <a href="#" class="btn btn-default" data-dismiss="modal">No</a>
-                <a href="#" class="btn btn-warning" onclick="ReplacementRecord()">Yes</a>
-            </div>
+    <div class="modal fade" id="spinnerModal" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-dialog-centered justify-content-center" role="document">
+            <span class="fa fa-spinner fa-spin fa-3x"></span>
         </div>
     </div>
-</div>
-<div class="modal fade" id="replacementModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title" id="myModalLabel">Replacement</h3>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <h4>Replacement?</h4>
+    <input type="hidden" id="hiddenAdviceId" />
+    <input type="hidden" id="ddeaFlagId" />
+    @section Scripts {
+        @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+        <script src="~/vendor/Datatables/jquery.dataTables.min.js"></script>
+        <script src="~/vendor/Datatables/dataTables.bootstrap4.min.js"></script>
 
-            </div>
-            <div class="modal-footer">
-                <a href="#" class="btn btn-default" data-dismiss="modal" onclick="CancelAdviceNoReplacement()">No</a>
-                <a href="#" class="btn btn-warning" onclick="CancelAdviceReplacement()">Yes</a>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="modal fade" id="spinnerModal" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog">
-    <div class="modal-dialog modal-dialog-centered justify-content-center" role="document">
-        <span class="fa fa-spinner fa-spin fa-3x"></span>
-    </div>
-</div>
-<input type="hidden" id="hiddenAdviceId" />
-<input type="hidden" id="ddeaFlagId" />
-@section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-    <script type="text/javascript">
+        <script type="text/javascript">
+
+        var dataTable;
 
         $(document).ready(function () {
-            $("#PersonnelInformationId").chosen();
-        });
 
-        $(document).ajaxComplete(function () {
-            $("#PersonnelInformationId").chosen();
+            dataTable = $('#adviceTable').DataTable({
+                "deferRender": false,
+                "processing": true,
+                "serverSide": true,
+                "ajax": {
+                    "url": "/Payroll/EarningAdviceData",
+                    "type": "GET"
+                },
+                "initComplete": function (settings, json) {
+                    $('#adviceTable_paginate .previous a').html(`<i class="fas fa-angle-left"></i>`);
+                    $('#adviceTable_paginate .next a').html(`<i class="fas fa-angle-right"></i>`);
+
+                },
+                "drawCallback": function (settings) {
+                    $('#adviceTable_paginate .previous a').html(`<i class="fas fa-angle-left"></i>`);
+                    $('#adviceTable_paginate .next a').html(`<i class="fas fa-angle-right"></i>`);
+
+                },
+
+                "info": false,
+                "searching": true,
+
+                "paging": true,
+
+
+                "columns": [
+                    { data: 'adviceNumber', name: "adviceNumber" },
+                    { data: "formattedDate", name: "date" },
+                    { data: "icNumber", name: "icNumber" },
+                    { data: "name", name: "name" },
+                    { data: "remarks", name: "remarks" },
+                    { data: "status", name: "status" },
+                    { data: "earning", name: "earning" },
+                    { data: "action", name: "action" }
+                ],
+                "order": [[0, "desc"]],
+
+
+            });
+
         });
 
         var ConfirmCancel = function (PayrollAdviceId) {
@@ -326,5 +307,5 @@
             })
         }
 
-    </script>
-}
+        </script>
+    }

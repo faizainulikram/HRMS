@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.Identity;
 using BIA.Dashboard.Template.Services;
 using BIA.Dashboard.Template.Infrastructure;
 using Microsoft.CodeAnalysis;
+using BIA.Dashboard.Template.DTOS;
 
 namespace BIA.Dashboard.Template.Controllers
 {
@@ -75,94 +76,333 @@ namespace BIA.Dashboard.Template.Controllers
         }
 
         // GET: EarningAdvice
-        public async Task<IActionResult> EarningAdvice(string searchString, string currentFilter, int? pageNumber)
+        public IActionResult EarningAdvice()
         {
-            if (searchString != null)
+            return View();
+        }
+        public async Task<JsonResult> EarningAdviceData()
+        {
+            var draw = int.Parse(HttpContext.Request.Query["draw"]);
+            var start = int.Parse(HttpContext.Request.Query["start"]);
+            var length = int.Parse(Request.Query["length"].ToString());
+            string sortColumnDirection = Request.Query["order[0][dir]"].ToString();
+            var searchValue = Request.Query["search[value]"].ToString();
+            searchValue = string.IsNullOrEmpty(searchValue) ? null : searchValue;
+            string columnNum = Request.Query["order[0][column]"].ToString();
+            string sortColumn = Request.Query["columns[" + columnNum + "][name]"].ToString();
+            var query = _context.EarningPayrollAdvices.Include(x => x.PersonnelInformation).Where(s => searchValue == null || s.AdviceNumber.Contains(searchValue)
+  || s.ICNumber.Contains(searchValue)
+  || s.PersonnelInformation.Name.Contains(searchValue)
+  || s.Remarks.Contains(searchValue)
+  || s.Status.Contains(searchValue)
+  || s.Earning.ToString().Contains(searchValue)
+  );
+
+            var dataQuery = query.Select(x => new AdviceGridDataDto
             {
-                pageNumber = 1;
+                AdviceNumber = x.AdviceNumber,
+                Date = x.Date,
+                ICNumber = x.ICNumber,
+                Name = x.PersonnelInformation.Name,
+                Remarks = x.Remarks,
+                PayrollAdviceId = x.PayrollAdviceId,
+                Status = x.Status,
+                Earning=x.Earning
+            });
+            if (sortColumnDirection == "desc")
+            {
+                switch (sortColumn)
+                {
+                    case "adviceNumber":
+                        dataQuery = dataQuery.OrderByDescending(x => x.AdviceNumber);
+                        break;
+                    case "date":
+                        dataQuery = dataQuery.OrderByDescending(x => x.Date);
+                        break;
+                    case "icNumber":
+                        dataQuery = dataQuery.OrderByDescending(x => x.ICNumber);
+                        break;
+                    case "name":
+                        dataQuery = dataQuery.OrderByDescending(x => x.Name);
+                        break;
+                    case "remarks":
+                        dataQuery = dataQuery.OrderByDescending(x => x.Remarks);
+                        break;
+                    case "status":
+                        dataQuery = dataQuery.OrderByDescending(x => x.Status);
+                        break;
+                    case "earning":
+                        dataQuery = dataQuery.OrderByDescending(x => x.Earning);
+                        break;
+                    default:
+                        dataQuery = dataQuery.OrderByDescending(x => x.PayrollAdviceId);
+                        break;
+                }
             }
             else
             {
-                searchString = currentFilter;
+                switch (sortColumn)
+                {
+                    case "adviceNumber":
+                        dataQuery = dataQuery.OrderBy(x => x.AdviceNumber);
+                        break;
+                    case "date":
+                        dataQuery = dataQuery.OrderBy(x => x.Date);
+                        break;
+                    case "icNumber":
+                        dataQuery = dataQuery.OrderBy(x => x.ICNumber);
+                        break;
+                    case "name":
+                        dataQuery = dataQuery.OrderBy(x => x.Name);
+                        break;
+                    case "remarks":
+                        dataQuery = dataQuery.OrderBy(x => x.Remarks);
+                        break;
+                    case "status":
+                        dataQuery = dataQuery.OrderBy(x => x.Status);
+                        break;
+                    case "earning":
+                        dataQuery = dataQuery.OrderBy(x => x.Earning);
+                        break;
+                    default:
+                        dataQuery = dataQuery.OrderBy(x => x.PayrollAdviceId);
+                        break;
+                }
             }
 
-            ViewData["CurrentFilter"] = searchString;
-
-            var deductions = _context.EarningPayrollAdvices.Include(x => x.PersonnelInformation).AsQueryable();
-
-            if (!String.IsNullOrEmpty(searchString))
+            var totalRecords = dataQuery.Count();
+            var data = await dataQuery.Skip(start).Take(length).ToListAsync();
+            foreach (var item in data)
             {
-                deductions = deductions.Where(s => (s.AdviceNumber.Contains(searchString)
-                || s.ICNumber.Contains(searchString)
-                || s.Remarks.Contains(searchString)
-                || s.Ledger.Name.Contains(searchString)
-                ));
-            }
+                item.FormattedDate = item.Date.ToString("dd/MM/yyyy");
+                if (item.Status == "C")
+                {
+                    item.Status = @"<span class='badge badge-danger'>Cancelled</span>";
+                }
+                item.Action = @"<a href='#' onclick='ConfirmEdit(" + item.PayrollAdviceId + @")' class='btn btn-sm btn-secondary'>Edit</a>
+                            <a href = '#' onclick = 'ConfirmCancel(" + item.PayrollAdviceId + @")' class='btn btn-sm btn-warning'>Cancel</a>";
 
-            int pageSize = 10;
-            return View(await PaginatedList<EarningPayrollAdvice>.CreateAsync(deductions.AsNoTracking(), pageNumber ?? 1, pageSize));
+            }
+            return Json(new { draw = draw, recordsFiltered = totalRecords, recordsTotal = totalRecords, data = data });
         }
 
         // GET: DeductionAdvice
-        public async Task<IActionResult> DeductionAdvice(string searchString, string currentFilter, int? pageNumber)
+        public IActionResult DeductionAdvice()
         {
-            if (searchString != null)
+            
+            return View();
+        }
+        public async Task<JsonResult> DeductionAdviceData()
+        {
+            var draw = int.Parse(HttpContext.Request.Query["draw"]);
+            var start = int.Parse(HttpContext.Request.Query["start"]);
+            var length = int.Parse(Request.Query["length"].ToString());
+            string sortColumnDirection = Request.Query["order[0][dir]"].ToString();
+            var searchValue = Request.Query["search[value]"].ToString();
+            searchValue = string.IsNullOrEmpty(searchValue) ? null : searchValue;
+            string columnNum = Request.Query["order[0][column]"].ToString();
+            string sortColumn = Request.Query["columns[" + columnNum + "][name]"].ToString();
+            var query = _context.DeductionPayrollAdvices.Include(x => x.PersonnelInformation).Where(s => searchValue == null || s.AdviceNumber.Contains(searchValue)
+  || s.ICNumber.Contains(searchValue)
+  || s.PersonnelInformation.Name.Contains(searchValue)
+  || s.Remarks.Contains(searchValue)
+  || s.Status.Contains(searchValue)
+  || s.Deduction.ToString().Contains(searchValue)
+  );
+
+            var dataQuery = query.Select(x => new AdviceGridDataDto
             {
-                pageNumber = 1;
+                AdviceNumber = x.AdviceNumber,
+                Date = x.Date,
+                ICNumber = x.ICNumber,
+                Name = x.PersonnelInformation.Name,
+                Remarks = x.Remarks,
+                PayrollAdviceId = x.PayrollAdviceId,
+                Status = x.Status,
+                Deduction = x.Deduction
+            });
+            if (sortColumnDirection == "desc")
+            {
+                switch (sortColumn)
+                {
+                    case "adviceNumber":
+                        dataQuery = dataQuery.OrderByDescending(x => x.AdviceNumber);
+                        break;
+                    case "date":
+                        dataQuery = dataQuery.OrderByDescending(x => x.Date);
+                        break;
+                    case "icNumber":
+                        dataQuery = dataQuery.OrderByDescending(x => x.ICNumber);
+                        break;
+                    case "name":
+                        dataQuery = dataQuery.OrderByDescending(x => x.Name);
+                        break;
+                    case "remarks":
+                        dataQuery = dataQuery.OrderByDescending(x => x.Remarks);
+                        break;
+                    case "status":
+                        dataQuery = dataQuery.OrderByDescending(x => x.Status);
+                        break;
+                    case "deduction":
+                        dataQuery = dataQuery.OrderByDescending(x => x.Deduction);
+                        break;
+                    default:
+                        dataQuery = dataQuery.OrderByDescending(x => x.PayrollAdviceId);
+                        break;
+                }
             }
             else
             {
-                searchString = currentFilter;
+                switch (sortColumn)
+                {
+                    case "adviceNumber":
+                        dataQuery = dataQuery.OrderBy(x => x.AdviceNumber);
+                        break;
+                    case "date":
+                        dataQuery = dataQuery.OrderBy(x => x.Date);
+                        break;
+                    case "icNumber":
+                        dataQuery = dataQuery.OrderBy(x => x.ICNumber);
+                        break;
+                    case "name":
+                        dataQuery = dataQuery.OrderBy(x => x.Name);
+                        break;
+                    case "remarks":
+                        dataQuery = dataQuery.OrderBy(x => x.Remarks);
+                        break;
+                    case "status":
+                        dataQuery = dataQuery.OrderBy(x => x.Status);
+                        break;
+                    case "deduction":
+                        dataQuery = dataQuery.OrderBy(x => x.Deduction);
+                        break;
+                    default:
+                        dataQuery = dataQuery.OrderBy(x => x.PayrollAdviceId);
+                        break;
+                }
             }
 
-            ViewData["CurrentFilter"] = searchString;
-
-            var deductions = _context.DeductionPayrollAdvices.Include(x => x.PersonnelInformation).AsQueryable();
-
-            if (!String.IsNullOrEmpty(searchString))
+            var totalRecords = dataQuery.Count();
+            var data = await dataQuery.Skip(start).Take(length).ToListAsync();
+            foreach (var item in data)
             {
-                deductions = deductions.Where(s => (s.AdviceNumber.Contains(searchString)
-                || s.ICNumber.Contains(searchString)
-                || s.Remarks.Contains(searchString)
-                || s.Ledger.Name.Contains(searchString)
-                ));
+                item.FormattedDate = item.Date.ToString("dd/MM/yyyy");
+                if (item.Status == "C")
+                {
+                    item.Status = @"<span class='badge badge-danger'>Cancelled</span>";
+                }
+                item.Action = @"<a href='#' onclick='ConfirmEdit(" + item.PayrollAdviceId + @")' class='btn btn-sm btn-secondary'>Edit</a>
+                            <a href = '#' onclick = 'ConfirmCancel(" + item.PayrollAdviceId + @")' class='btn btn-sm btn-warning'>Cancel</a>";
+
             }
-
-            int pageSize = 10;
-            return View(await PaginatedList<DeductionPayrollAdvice>.CreateAsync(deductions.AsNoTracking(), pageNumber ?? 1, pageSize));
+            return Json(new { draw = draw, recordsFiltered = totalRecords, recordsTotal = totalRecords, data = data });
         }
-
         // GET: BankAdvice
-        public async Task<IActionResult> BankAccountAdvice(string searchString, string currentFilter, int? pageNumber)
+        public IActionResult BankAccountAdvice()
         {
-            if (searchString != null)
+            
+            return View();
+        }
+
+        public async Task<JsonResult> BankAccountAdviceData()
+        {
+            var draw = int.Parse(HttpContext.Request.Query["draw"]);
+            var start = int.Parse(HttpContext.Request.Query["start"]);
+            var length = int.Parse(Request.Query["length"].ToString());
+            string sortColumnDirection = Request.Query["order[0][dir]"].ToString();
+            var searchValue = Request.Query["search[value]"].ToString();
+            searchValue = string.IsNullOrEmpty(searchValue) ? null : searchValue;
+            string columnNum = Request.Query["order[0][column]"].ToString();
+            string sortColumn = Request.Query["columns[" + columnNum + "][name]"].ToString();
+            var query = _context.BankAccountAdvices.Include(x => x.PersonnelInformation).Where(s => searchValue == null || s.AdviceNumber.Contains(searchValue)
+  || s.ICNumber.Contains(searchValue)
+  || s.PersonnelInformation.Name.Contains(searchValue)
+  || s.Remarks.Contains(searchValue)
+  || s.Status.Contains(searchValue)
+  );
+
+            var dataQuery = query.Select(x => new AdviceGridDataDto
             {
-                pageNumber = 1;
+                AdviceNumber = x.AdviceNumber,
+                Date = x.Date,
+                ICNumber = x.ICNumber,
+                Name = x.PersonnelInformation.Name,
+                Remarks = x.Remarks,
+                PayrollAdviceId = x.PayrollAdviceId,
+                Status = x.Status
+            });
+            if (sortColumnDirection == "desc")
+            {
+                switch (sortColumn)
+                {
+                    case "adviceNumber":
+                        dataQuery = dataQuery.OrderByDescending(x => x.AdviceNumber);
+                        break;
+                    case "date":
+                        dataQuery = dataQuery.OrderByDescending(x => x.Date);
+                        break;
+                    case "icNumber":
+                        dataQuery = dataQuery.OrderByDescending(x => x.ICNumber);
+                        break;
+                    case "name":
+                        dataQuery = dataQuery.OrderByDescending(x => x.Name);
+                        break;
+                    case "remarks":
+                        dataQuery = dataQuery.OrderByDescending(x => x.Remarks);
+                        break;
+                    case "status":
+                        dataQuery = dataQuery.OrderByDescending(x => x.Status);
+                        break;
+                    default:
+                        dataQuery = dataQuery.OrderByDescending(x => x.PayrollAdviceId);
+                        break;
+                }
             }
             else
             {
-                searchString = currentFilter;
+                switch (sortColumn)
+                {
+                    case "adviceNumber":
+                        dataQuery = dataQuery.OrderBy(x => x.AdviceNumber);
+                        break;
+                    case "date":
+                        dataQuery = dataQuery.OrderBy(x => x.Date);
+                        break;
+                    case "icNumber":
+                        dataQuery = dataQuery.OrderBy(x => x.ICNumber);
+                        break;
+                    case "name":
+                        dataQuery = dataQuery.OrderBy(x => x.Name);
+                        break;
+                    case "remarks":
+                        dataQuery = dataQuery.OrderBy(x => x.Remarks);
+                        break;
+                    case "status":
+                        dataQuery = dataQuery.OrderBy(x => x.Status);
+                        break;
+                    default:
+                        dataQuery = dataQuery.OrderBy(x => x.PayrollAdviceId);
+                        break;
+                }
             }
 
-            ViewData["CurrentFilter"] = searchString;
-
-            var bankaccounts = _context.BankAccountAdvices.Include(x => x.PersonnelInformation).AsQueryable();
-            if (!String.IsNullOrEmpty(searchString))
+            var totalRecords = dataQuery.Count();
+            var data = await dataQuery.Skip(start).Take(length).ToListAsync();
+            foreach (var item in data)
             {
-                bankaccounts = bankaccounts.Where(s => (s.AdviceNumber.Contains(searchString)
-                || s.ICNumber.Contains(searchString)
-                || s.Remarks.Contains(searchString)
-                || s.BankCode.Contains(searchString)
-                || s.BranchCode.Contains(searchString)
-                || s.BankAccountType.Contains(searchString)
-                || s.AccountNumber.Contains(searchString)
-                || s.AccountName.Contains(searchString)
-                ));
-            }
+                item.FormattedDate = item.Date.ToString("dd/MM/yyyy");
+                if (item.Status == "C")
+                {
+                    item.Status = @"<span class='badge badge-danger'>Cancelled</span>";
+                }
+                item.Action = @"<a href='#' onclick='ConfirmEdit(" + item.PayrollAdviceId + @")' class='btn btn-sm btn-secondary'>Edit</a>
+                            <a href = '#' onclick = 'ConfirmCancel(" + item.PayrollAdviceId + @")' class='btn btn-sm btn-warning'>Cancel</a>";
 
-            int pageSize = 10;
-            return View(await PaginatedList<BankAccountPayrollAdvice>.CreateAsync(bankaccounts.AsNoTracking(), pageNumber ?? 1, pageSize));
+            }
+            return Json(new { draw = draw, recordsFiltered = totalRecords, recordsTotal = totalRecords, data = data });
         }
+
+
 
         // GET: AddPayrollAdvice
         public IActionResult AddBankAccountAdvice()
@@ -172,11 +412,11 @@ namespace BIA.Dashboard.Template.Controllers
             BankAndBankBranchDropdowns(string.Empty, string.Empty);
             return PartialView("_AddBankAccountAdvice");
         }
-        private void BankAndBankBranchDropdowns(string bank,string branch)
+        private void BankAndBankBranchDropdowns(string bank, string branch)
         {
-            var _data= _context.PayrollBankBranch.ToList();
-            ViewBag.banks = new SelectList(_data, "Bank", "BankName",bank);
-            ViewBag.branches = new SelectList(_data, "Branch", "BranchName", branch);
+
+            ViewBag.banks = new SelectList(_context.PayrollBanks.ToList(), "BankCode", "BankName", bank);
+            ViewBag.branches = new SelectList(_context.PayrollBankBranch.ToList(), "BranchCode", "BranchName", branch);
 
 
         }
@@ -218,7 +458,7 @@ namespace BIA.Dashboard.Template.Controllers
 
             return PartialView("_AddEarningAdvice", payrollAdvice);
         }
-        [HttpPost]  
+        [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddBankAccountAdvice(BankAccountPayrollAdvice payrollAdvice)
         {
@@ -246,7 +486,7 @@ namespace BIA.Dashboard.Template.Controllers
 
             PopulateUserDropdownList(personnelInformation);
             PopulateLedgerDropdownList(payrollLedger);
-            BankAndBankBranchDropdowns(payrollAdvice?.BankCode,payrollAdvice?.BranchCode);
+            BankAndBankBranchDropdowns(payrollAdvice?.BankCode, payrollAdvice?.BranchCode);
             return PartialView("_EditBankAccountAdvice", payrollAdvice);
         }
         public async Task<IActionResult> EditDeductionAdvice(int id)
@@ -285,7 +525,7 @@ namespace BIA.Dashboard.Template.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Entry(payrollAdvice).State=EntityState.Modified;
+                _context.Entry(payrollAdvice).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(BankAccountAdvice));
             }
@@ -517,7 +757,7 @@ namespace BIA.Dashboard.Template.Controllers
             ViewData["CurrentFilter"] = searchString;
 
             var ledgers = from s in _context.PayrollLedger
-                           select s;
+                          select s;
 
             if (!String.IsNullOrEmpty(searchString))
             {
@@ -612,14 +852,14 @@ namespace BIA.Dashboard.Template.Controllers
 
             ViewData["CurrentFilter"] = searchString;
 
-            var bankbranches = from s in _context.PayrollBankBranch
-                          select s;
+            var bankbranches = from s in _context.PayrollBankBranch.Include(x => x.PayrollBank)
+                               select s;
 
             if (!String.IsNullOrEmpty(searchString))
             {
-                bankbranches = bankbranches.Where(s => (s.Bank.Contains(searchString)
-                || s.BankName.Contains(searchString)
-                || s.Branch.Contains(searchString)
+                bankbranches = bankbranches.Where(s => (s.PayrollBank.BankName.Contains(searchString)
+                || s.PayrollBank.BankCode.Contains(searchString)
+                || s.BranchCode.Contains(searchString)
                 || s.BranchName.Contains(searchString)
                 ));
             }
@@ -699,7 +939,8 @@ namespace BIA.Dashboard.Template.Controllers
         {
             var results = _context.PersonnelInformation.Where(s => s.Name.StartsWith(term))
                                                        .Where(s => s.IdentityCardNumber.StartsWith(term))
-                                                       .Select(x => new {
+                                                       .Select(x => new
+                                                       {
                                                            id = x.PersonnelId,
                                                            name = x.Name,
                                                            ic = x.IdentityCardNumber,

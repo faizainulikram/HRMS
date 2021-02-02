@@ -2,8 +2,8 @@
 @inject IAuthorizationService AuthorizationService
 @using Microsoft.AspNetCore.Identity
 @inject UserManager<ApplicationUser> userManager
-@model PaginatedList<BIA.Dashboard.Template.Models.DeductionPayrollAdvice>
-
+<link rel="stylesheet" href="~/vendor/Datatables/dataTables.bootstrap4.min.css">
+ 
 @{
     ViewData["Title"] = "Bank Account Advice";
 }
@@ -75,91 +75,30 @@
     <div class="col">
         <div class="card-header border-0">
             <h1 class="mb-5 text-center"></h1>
-            <div class="form-group" asp-controller="Payroll" asp-action="BankAccountAdvice" method="get">
-                <form asp-controller="Payroll" asp-action="Index" method="get">
-                    @*<span class="input-group-text">Search Personnels: </span>*@
-                    <div class="input-group">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="ni ni-zoom-split-in"></i></span>
-                        </div>
-                        <input class="form-control mr-2" type="text" name="SearchString">
-                        <button type="submit" class="btn btn-primary btn-md mr-2" value="Filter">Search</button>
-                        <button type="button" class="btn btn-secondary btn-md mr-2" value="Return to Index" onclick="window.location='@Url.Action("BankAccountAdvice", "Payroll")'">Return to Index</button>
-                    </div>
-                </form>
-            </div>
-            @*<a asp-area="Identity" asp-page="/Account/Register" class="btn btn-success btn-md" style="width:auto">
-                    Add New User
-                </a>*@
+
             <a href="#" id="addNewDeductionAdvice" class="btn btn-success btn-md" style="width:auto">Add New Deduction Advice</a>
-        </div>
-        @*<button class="btn btn-success btn-md" onclick="window.location='@Url.Action("Create", "PersonnelInformations")'">Add</button>*@
-        <div class="table-responsive">
-            <table class="table align-items-center table-flush">
-                <thead class="thead-flush">
-                    <tr>
-                        <th scope="col" width="15%">Advice Number</th>
-                        <th scope="col" width="15%">Date</th>
-                        <th scope="col" width="15%">IC Number</th>
-                        <th scope="col" width="15%">Name</th>
-                        <th scope="col" width="15%">Remarks</th>
-                        <th scope="col" width="15%">Status</th>
-                        <th>Deduction</th>
-                        <th></th>
+            <div class="table-responsive" style="margin-top:20px;overflow:hidden">
+                <table class="table align-items-center table-flush" id="adviceTable">
+                    <thead class="thead-flush">
+                        <tr>
+                            <th scope="col" width="15%">Advice Number</th>
+                            <th scope="col" width="15%">Date</th>
+                            <th scope="col" width="15%">IC Number</th>
+                            <th scope="col" width="15%">Name</th>
+                            <th scope="col" width="15%">Remarks</th>
+                            <th scope="col" width="15%">Status</th>
+                            <th>Deduction</th>
+                            <th></th>
 
 
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in Model)
-                    {
-                        <tr id="row_@item.PayrollAdviceId">
-                            <td>@Html.DisplayFor(modelItem => item.AdviceNumber)</td>
-                            <td>@Html.DisplayFor(modelItem => item.Date)</td>
-                            <td>@Html.DisplayFor(modelItem => item.ICNumber)</td>
-                            <td>@Html.DisplayFor(modelItem => item.PersonnelInformation.Name)</td>
-                            <td>@Html.DisplayFor(modelItem => item.Remarks)</td>
-                            <td>
-                                @if (item.Status == "C")
-                                {
-                                    <span class="badge badge-danger">Cancelled</span>
-                                }
-                            </td>
-
-                            <td>@item.Deduction</td>
-                            <td>
-                                @*<a asp-action="EditUserDetails" asp-route-id="@item.Id" class="btn btn-sm btn-secondary">Edit Details</a>*@
-                                <a href="#" onclick="ConfirmEdit(@item.PayrollAdviceId)" class="btn btn-sm btn-secondary">Edit</a>
-                                <a href="#" onclick="ConfirmCancel(@item.PayrollAdviceId)" class="btn btn-sm btn-warning">Cancel</a>
-                            </td>
                         </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
-        <div class="d-flex card-footer flex-row-reverse">
+                    </thead>
 
-            @{
-                var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
-                var nextDisabled = !Model.HasNextPage ? "disabled" : "";
-            }
-            <div class="p-2">
-                <a asp-action="Index"
-                   asp-route-sortOrder="@ViewData["CurrentSort"]"
-                   asp-route-pageNumber="@(Model.PageIndex - 1)"
-                   asp-route-currentFilter="@ViewData["CurrentFilter"]"
-                   class="btn btn-default btn-sm @prevDisabled">
-                    Previous
-                </a>
-                <a asp-action="Index"
-                   asp-route-sortOrder="@ViewData["CurrentSort"]"
-                   asp-route-pageNumber="@(Model.PageIndex + 1)"
-                   asp-route-currentFilter="@ViewData["CurrentFilter"]"
-                   class="btn btn-default btn-sm @nextDisabled">
-                    Next
-                </a>
+                </table>
             </div>
         </div>
+
+
     </div>
 </div>
 <div id="viewDiv">
@@ -219,14 +158,56 @@
 <input type="hidden" id="ddeaFlagId" />
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script src="~/vendor/Datatables/jquery.dataTables.min.js"></script>
+    <script src="~/vendor/Datatables/dataTables.bootstrap4.min.js"></script>
+
+
+
     <script type="text/javascript">
+        var dataTable;
 
         $(document).ready(function () {
-            $("#PersonnelInformationId").chosen();
-        });
 
-        $(document).ajaxComplete(function () {
-            $("#PersonnelInformationId").chosen();
+            dataTable = $('#adviceTable').DataTable({
+                "deferRender": false,
+                "processing": true,
+                "serverSide": true,
+                "ajax": {
+                    "url": "/Payroll/DeductionAdviceData",
+                    "type": "GET"
+                },
+                "initComplete": function (settings, json) {
+                    $('#adviceTable_paginate .previous a').html(`<i class="fas fa-angle-left"></i>`);
+                    $('#adviceTable_paginate .next a').html(`<i class="fas fa-angle-right"></i>`);
+
+                },
+                "drawCallback": function (settings) {
+                    $('#adviceTable_paginate .previous a').html(`<i class="fas fa-angle-left"></i>`);
+                    $('#adviceTable_paginate .next a').html(`<i class="fas fa-angle-right"></i>`);
+
+                },
+
+                "info": false,
+                "searching": true,
+
+                "paging": true,
+
+
+                "columns": [
+                    { data: 'adviceNumber', name: "adviceNumber" },
+                    { data: "formattedDate", name: "date" },
+                    { data: "icNumber", name: "icNumber" },
+                    { data: "name", name: "name" },
+                    { data: "remarks", name: "remarks" },
+                    { data: "status", name: "status" },
+                    { data: "deduction", name: "deduction" },
+                    { data: "action", name: "action" }
+                ],
+                "order": [[0, "desc"]],
+                 
+
+            });
+
         });
 
         var ConfirmCancel = function (PayrollAdviceId) {

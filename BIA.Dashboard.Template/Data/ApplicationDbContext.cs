@@ -36,6 +36,7 @@ namespace BIA.Dashboard.Template.Data
         public DbSet<DeductionPayrollAdvice> DeductionPayrollAdvices { get; set; }
         public DbSet<PayrollLedger> PayrollLedger { get; set; }
         public DbSet<PayrollBankBranch> PayrollBankBranch { get; set; }
+        public DbSet<PayrollBank> PayrollBanks { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
